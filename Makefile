@@ -37,11 +37,17 @@ install: build
 	rm -rf "$(DEST)"
 	cp -r "$(PRODUCT)" "$(DEST)"
 	@echo "Installed → $(DEST)"
-	@echo "Run: make run   then enable Safari Swipe in Safari → Settings → Extensions"
+	@echo ""
+	@echo "Next steps:"
+	@echo "  1. make run"
+	@echo "  2. Safari → Settings → Advanced → enable 'Show features for web developers'"
+	@echo "  3. Safari → Develop → Allow Unsigned Extensions  (required after every Safari restart)"
+	@echo "  4. Safari → Settings → Extensions → enable Safari Swipe"
 
 # Open the installed app
 run:
 	open "$(DEST)"
+	@echo "Now: Safari → Develop → Allow Unsigned Extensions, then Settings → Extensions → Safari Swipe"
 
 # Remove build artifacts
 clean:

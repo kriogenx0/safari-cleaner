@@ -27,7 +27,11 @@ make install
 make run
 ```
 
-After running the app, enable the extension in **Safari → Settings → Extensions → Safari Swipe**.
+After running the app, enable the extension:
+
+1. **Safari → Settings → Advanced** → turn on "Show features for web developers"
+2. **Safari → Develop → Allow Unsigned Extensions** — required after every Safari restart
+3. **Safari → Settings → Extensions** → enable Safari Swipe
 
 ## Development
 
