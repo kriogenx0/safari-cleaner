@@ -22,11 +22,6 @@
 			fileRef = 856A5A07B3AF4C06BF4FC8A2;
 		};
 
-		458F66305EB048E5BBDCB115 = {
-			isa = PBXBuildFile;
-			fileRef = BA7F7083287E40C39F7B2A6E;
-		};
-
 		1830027A140C4934A2F56674 = {
 			isa = PBXBuildFile;
 			fileRef = C755BE5BC9BF4089B2B516B6;
@@ -144,14 +139,6 @@
 			lastKnownFileType = text.plist.entitlements;
 			name = "SafariSwipe.entitlements";
 			path = "SafariSwipe.entitlements";
-			sourceTree = "<group>";
-		};
-
-		BA7F7083287E40C39F7B2A6E = {
-			isa = PBXFileReference;
-			lastKnownFileType = file.storyboard;
-			name = "Main.storyboard";
-			path = "Base.lproj/Main.storyboard";
 			sourceTree = "<group>";
 		};
 
@@ -284,7 +271,6 @@
 			children = (
 				EE28C1ADDB354734AE435822,
 				3C31D55229A04AEB8659B36F,
-				BA7F7083287E40C39F7B2A6E,
 				C755BE5BC9BF4089B2B516B6,
 				B5795B5211B34F1ABDBA01F1,
 				8F0557DFE00542A4AEB144C5,
@@ -397,7 +383,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				458F66305EB048E5BBDCB115,
 				1830027A140C4934A2F56674,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

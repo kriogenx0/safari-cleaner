@@ -27,7 +27,7 @@ IDS = {k: uid() for k in [
     "main_group", "app_group", "ext_group", "res_group", "products_group",
     "app_target", "ext_target",
     # app source files
-    "ref_appdel", "ref_viewctl", "ref_app_info", "ref_app_ent", "ref_main_storyboard",
+    "ref_appdel", "ref_viewctl", "ref_app_info", "ref_app_ent",
     "ref_assets",
     # ext source files
     "ref_exthandler", "ref_ext_info", "ref_ext_ent",
@@ -41,7 +41,7 @@ IDS = {k: uid() for k in [
     # build files (sources)
     "bf_appdel", "bf_viewctl", "bf_exthandler",
     # build files (resources)
-    "bf_main_storyboard", "bf_assets",
+    "bf_assets",
     "bf_manifest", "bf_background", "bf_content",
     "bf_icon48", "bf_icon96", "bf_icon128", "bf_icon256",
     # build phases
@@ -93,7 +93,6 @@ def write_project():
 {pbx_build_file(I['bf_appdel'],    I['ref_appdel'])}
 {pbx_build_file(I['bf_viewctl'],   I['ref_viewctl'])}
 {pbx_build_file(I['bf_exthandler'],I['ref_exthandler'])}
-{pbx_build_file(I['bf_main_storyboard'], I['ref_main_storyboard'])}
 {pbx_build_file(I['bf_assets'],    I['ref_assets'])}
 {pbx_build_file(I['bf_manifest'],  I['ref_manifest'])}
 {pbx_build_file(I['bf_background'],I['ref_background'])}
@@ -140,7 +139,6 @@ def write_project():
 {pbx_file_ref(I['ref_viewctl'],   "ViewController.swift",      "ViewController.swift","sourcecode.swift")}
 {pbx_file_ref(I['ref_app_info'],  "Info.plist",                "Info.plist",          "text.plist.xml")}
 {pbx_file_ref(I['ref_app_ent'],   f"{APP_ID_SAFE}.entitlements", f"{APP_ID_SAFE}.entitlements", "text.plist.entitlements")}
-{pbx_file_ref(I['ref_main_storyboard'], "Main.storyboard",     "Base.lproj/Main.storyboard", "file.storyboard")}
 {pbx_file_ref(I['ref_assets'],    "Assets.xcassets",           "Assets.xcassets",     "folder.assetcatalog")}
 {pbx_file_ref(I['ref_exthandler'],"SafariWebExtensionHandler.swift","SafariWebExtensionHandler.swift","sourcecode.swift")}
 {pbx_file_ref(I['ref_ext_info'],  "Info.plist",                "Info.plist",          "text.plist.xml")}
@@ -193,7 +191,6 @@ def write_project():
 \t\t\tchildren = (
 \t\t\t\t{I['ref_appdel']},
 \t\t\t\t{I['ref_viewctl']},
-\t\t\t\t{I['ref_main_storyboard']},
 \t\t\t\t{I['ref_assets']},
 \t\t\t\t{I['ref_app_info']},
 \t\t\t\t{I['ref_app_ent']},
@@ -306,7 +303,6 @@ def write_project():
 \t\t\tisa = PBXResourcesBuildPhase;
 \t\t\tbuildActionMask = 2147483647;
 \t\t\tfiles = (
-\t\t\t\t{I['bf_main_storyboard']},
 \t\t\t\t{I['bf_assets']},
 \t\t\t);
 \t\t\trunOnlyForDeploymentPostprocessing = 0;
@@ -507,7 +503,22 @@ import Cocoa
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
-    func applicationDidFinishLaunching(_ n: Notification) {}
+    private var window: NSWindow?
+
+    func applicationDidFinishLaunching(_ n: Notification) {
+        let vc = ViewController()
+        let win = NSWindow(
+            contentRect: NSRect(x: 196, y: 240, width: 480, height: 270),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
+            backing: .buffered,
+            defer: false
+        )
+        win.title = "Safari Swipe"
+        win.contentViewController = vc
+        win.makeKeyAndOrderFront(nil)
+        window = win
+    }
+
     func applicationWillTerminate(_ n: Notification) {}
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool { true }
 }
@@ -518,10 +529,19 @@ import Cocoa
 import SafariServices
 
 class ViewController: NSViewController {{
+    override func loadView() {{
+        view = NSView(frame: NSRect(x: 0, y: 0, width: 480, height: 270))
+    }}
+
     override func viewDidLoad() {{
         super.viewDidLoad()
+        let button = NSButton(title: "Open Extension Preferences", target: self, action: #selector(openExtensionPrefs))
+        button.bezelStyle = .rounded
+        button.frame = NSRect(x: 168, y: 116, width: 144, height: 32)
+        view.addSubview(button)
     }}
-    @IBAction func openExtensionPrefs(_ sender: Any?) {{
+
+    @objc func openExtensionPrefs(_ sender: Any?) {{
         SFSafariApplication.showPreferencesForExtension(withIdentifier: "{BUNDLE_ID_EXT}") {{ _ in }}
     }}
 }}
@@ -540,7 +560,6 @@ class ViewController: NSViewController {{
         CFBundleVersion="1",
         LSMinimumSystemVersion="$(MACOSX_DEPLOYMENT_TARGET)",
         NSHumanReadableCopyright="",
-        NSMainStoryboardFile="Main",
         NSPrincipalClass="NSApplication",
     )
     with open(d / "Info.plist", "wb") as f:
@@ -550,97 +569,6 @@ class ViewController: NSViewController {{
     ents = {"com.apple.security.app-sandbox": True}
     with open(d / f"{APP_ID_SAFE}.entitlements", "wb") as f:
         plistlib.dump(ents, f)
-
-    # Minimal storyboard
-    lproj = d / "Base.lproj"
-    lproj.mkdir(exist_ok=True)
-    (lproj / "Main.storyboard").write_text("""\
-<?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0"
-          toolsVersion="21701" targetRuntime="MacOSX.cocoa"
-          propertyAccessControl="none" useAutolayout="YES"
-          customObjectInstantiationMethod="direct">
-    <dependencies>
-        <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21701"/>
-    </dependencies>
-    <scenes>
-        <!--Application-->
-        <scene sceneID="KUk-hi-LPx">
-            <objects>
-                <application id="hnI-AP-oxe" sceneMemberID="applicationObject">
-                    <connections>
-                        <outlet property="delegate" destination="Voe-Tx-rLC" id="GzC-gU-4Tm"/>
-                    </connections>
-                </application>
-                <customObject id="Voe-Tx-rLC" customClass="AppDelegate"
-                              customModuleProvider="target" sceneMemberID="delegate"/>
-                <customObject id="YLy-65-1bz" customClass="NSFontManager" sceneMemberID="fontManager"/>
-                <menu title="Main Menu" systemMenu="main" id="AV2-I0-qfu">
-                    <items>
-                        <menuItem title="Safari Swipe" id="1Xt-HY-uBw">
-                            <menu title="Safari Swipe" systemMenu="apple" id="uQy-DD-JDr">
-                                <items>
-                                    <menuItem title="Quit Safari Swipe" keyEquivalent="q" id="4sb-4s-VLi">
-                                        <connections>
-                                            <action selector="terminate:" target="Xt5-WX-oUL" id="Te7-pn-YzF"/>
-                                        </connections>
-                                    </menuItem>
-                                </items>
-                            </menu>
-                        </menuItem>
-                    </items>
-                </menu>
-            </objects>
-        </scene>
-        <!--Window Controller-->
-        <scene sceneID="R3b-YO-oXw">
-            <objects>
-                <windowController id="B8D-0N-5wS" isInitialViewController="YES" sceneMemberID="viewController">
-                    <window key="window" title="Safari Swipe" allowsToolTipsWhenApplicationIsInactive="NO"
-                            autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO"
-                            animationBehavior="default" id="IB4-Ba-kVH">
-                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
-                        <rect key="contentRect" x="196" y="240" width="480" height="270"/>
-                        <windowPositionMask key="initialPositionMask" leftStrut="YES" bottomStrut="YES"/>
-                    </window>
-                    <connections>
-                        <segue destination="XfS-ot-5p1" kind="relationship"
-                               relationship="window.shadowedContentViewController" id="cau-5T-oXA"/>
-                    </connections>
-                </windowController>
-            </objects>
-        </scene>
-        <!--View Controller-->
-        <scene sceneID="hIz-AP-VOD">
-            <objects>
-                <viewController id="XfS-ot-5p1" customClass="ViewController"
-                                customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" wantsLayer="YES" id="EiT-Mj-1SZ">
-                        <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <button verticalHuggingPriority="750" id="KOo-zK-BGd">
-                                <rect key="frame" x="168" y="116" width="144" height="32"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <buttonCell key="cell" type="push" title="Open Extension Preferences"
-                                            bezelStyle="rounded" alignment="center" borderStyle="border"
-                                            imageScaling="proportionallyDown" inset="2" id="CO3-t8-eCu">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <action selector="openExtensionPrefs:" target="XfS-ot-5p1" id="Y6b-OD-oYU"/>
-                                </connections>
-                            </button>
-                        </subviews>
-                    </view>
-                </viewController>
-            </objects>
-        </scene>
-    </scenes>
-</document>
-""")
 
     # Assets catalog
     assets = d / "Assets.xcassets"
