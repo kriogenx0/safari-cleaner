@@ -7,9 +7,9 @@ DEV_APP     := $(BUILD)/Build/Products/Debug/$(APP).app
 RELEASE_APP := $(BUILD)/Build/Products/Release/$(APP).app
 DEST        := $(HOME)/Applications/$(APP).app
 
-.PHONY: all generate icons build dev run publish install open close reinstall-open uninstall clean help
+.PHONY: all generate icons build dev run publish install open close reinstall-open rebuild-open uninstall clean help
 
-all: build
+all: rebuild-open
 
 # Regenerate the Xcode project from extension source files
 generate:
@@ -68,8 +68,8 @@ open:
 close:
 	-killall "$(APP)"
 
-# Build, close, reinstall, and open.
-reinstall-open:
+# Build for production, close if open, reinstall, and open.
+reinstall-open rebuild-open:
 	$(MAKE) publish
 	-killall "$(APP)"
 	rm -rf "$(DEST)"
@@ -77,9 +77,10 @@ reinstall-open:
 	cp -r "$(RELEASE_APP)" "$(DEST)"
 	open "$(DEST)"
 
-# Close the app and remove it.
+# Close the app and remove it from Safari.
 uninstall:
 	-killall "$(APP)"
+	-killall "Safari"
 	rm -rf "$(DEST)"
 	@echo "Uninstalled $(APP)"
 
