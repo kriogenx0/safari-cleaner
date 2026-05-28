@@ -7,7 +7,7 @@ DEV_APP     := $(BUILD)/Build/Products/Debug/$(APP).app
 RELEASE_APP := $(BUILD)/Build/Products/Release/$(APP).app
 DEST        := $(HOME)/Applications/$(APP).app
 
-.PHONY: all generate icons build dev run publish install open uninstall clean help
+.PHONY: all generate icons build dev run publish install open close reinstall-open uninstall clean help
 
 all: build
 
@@ -45,8 +45,9 @@ publish: $(PROJECT)
 		-derivedDataPath "$(BUILD)" \
 		-quiet
 
-# Build and install to ~/Applications.
-install: publish
+# Build for production and install to ~/Applications.
+install:
+	$(MAKE) publish
 	mkdir -p "$(HOME)/Applications"
 	rm -rf "$(DEST)"
 	cp -r "$(RELEASE_APP)" "$(DEST)"
@@ -63,8 +64,22 @@ open:
 	@test -d "$(DEST)" || $(MAKE) install
 	open "$(DEST)"
 
-# Remove the installed app.
+# Kill the app.
+close:
+	-killall "$(APP)"
+
+# Build, close, reinstall, and open.
+reinstall-open:
+	$(MAKE) publish
+	-killall "$(APP)"
+	rm -rf "$(DEST)"
+	mkdir -p "$(HOME)/Applications"
+	cp -r "$(RELEASE_APP)" "$(DEST)"
+	open "$(DEST)"
+
+# Close the app and remove it.
 uninstall:
+	-killall "$(APP)"
 	rm -rf "$(DEST)"
 	@echo "Uninstalled $(APP)"
 
@@ -74,13 +89,15 @@ clean:
 
 help:
 	@echo "Targets:"
-	@echo "  make build      Build for dev (Debug)"
-	@echo "  make dev        Open the dev build"
-	@echo "  make run        Open the dev build"
-	@echo "  make publish    Build for production (Release)"
-	@echo "  make install    Build and install to ~/Applications"
-	@echo "  make open       Open production (build if needed)"
-	@echo "  make uninstall  Remove from ~/Applications"
-	@echo "  make generate   Regenerate Xcode project from extension sources"
-	@echo "  make icons      Regenerate icon PNGs"
-	@echo "  make clean      Remove all build artifacts and caches"
+	@echo "  make build           Build for dev (Debug)"
+	@echo "  make dev             Open the dev build"
+	@echo "  make run             Open the dev build"
+	@echo "  make publish         Build for production (Release)"
+	@echo "  make install         Build and install to ~/Applications"
+	@echo "  make open            Open production (build if needed)"
+	@echo "  make close           Kill the app"
+	@echo "  make reinstall-open  Build, reinstall, and open"
+	@echo "  make uninstall       Remove from ~/Applications"
+	@echo "  make generate        Regenerate Xcode project from extension sources"
+	@echo "  make icons           Regenerate icon PNGs"
+	@echo "  make clean           Remove all build artifacts and caches"
