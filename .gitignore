@@ -1,0 +1,16 @@
+# Build output
+build/
+
+# Xcode user data
+*.xcuserdata/
+xcuserdata/
+*.xccheckout
+*.moved-aside
+DerivedData/
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc

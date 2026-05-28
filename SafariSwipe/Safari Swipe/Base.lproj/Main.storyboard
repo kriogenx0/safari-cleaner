@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0"
+          toolsVersion="21701" targetRuntime="MacOSX.cocoa"
+          propertyAccessControl="none" useAutolayout="YES"
+          customObjectInstantiationMethod="direct">
+    <dependencies><deployment identifier="macosx"/></dependencies>
+    <scenes>
+        <scene sceneID="KUk-hi-LPx">
+            <objects>
+                <application id="hnI-AP-oxe" sceneMemberID="applicationObject">
+                    <connections>
+                        <outlet property="delegate" destination="Voe-Tx-rLC" id="GzC-gU-4Tm"/>
+                    </connections>
+                </application>
+                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="SafariSwipe"
+                              customModuleProvider="target" sceneMemberID="delegate"/>
+                <customObject id="YLy-65-1bz" customClass="NSFontManager" sceneMemberID="fontManager"/>
+                <menu title="Main Menu" systemMenu="main" id="AV2-I0-qfu">
+                    <items>
+                        <menuItem title="Safari Swipe" id="1Xt-HY-uBw">
+                            <menu title="Safari Swipe" systemMenu="apple" id="uQy-DD-JDr">
+                                <items>
+                                    <menuItem title="Quit Safari Swipe" keyEquivalent="q" id="4sb-4s-VLi">
+                                        <connections><action selector="terminate:" target="Xt5-WX-oUL" id="Te7-pn-YzF"/></connections>
+                                    </menuItem>
+                                </items>
+                            </menu>
+                        </menuItem>
+                    </items>
+                </menu>
+            </objects>
+        </scene>
+        <scene sceneID="hIz-AP-VOD">
+            <objects>
+                <window title="Safari Swipe" allowsToolTipsWhenApplicationIsInactive="NO"
+                        autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO"
+                        animationBehavior="default" id="QvC-M9-y7g" sceneMemberID="viewController">
+                    <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+                    <rect key="contentRect" x="196" y="240" width="480" height="270"/>
+                    <windowPositionMask key="initialPositionMask" leftStrut="YES" bottomStrut="YES"/>
+                    <view key="contentView" wantsLayer="YES" id="EiT-Mj-1SZ">
+                        <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <button verticalHuggingPriority="750" id="KOo-zK-BGd">
+                                <rect key="frame" x="168" y="116" width="144" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Open Extension Preferences"
+                                            bezelStyle="rounded" alignment="center" borderStyle="border"
+                                            imageScaling="proportionallyDown" inset="2" id="CO3-t8-eCu">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="openExtensionPrefs:" target="-2" id="Y6b-OD-oYU"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                    </view>
+                    <point key="canvasLocation" x="75" y="245"/>
+                </window>
+                <customObject id="-2" userLabel="File's Owner" customClass="ViewController"
+                              customModule="SafariSwipe" customModuleProvider="target" sceneMemberID="menus"/>
+            </objects>
+        </scene>
+    </scenes>
+</document>

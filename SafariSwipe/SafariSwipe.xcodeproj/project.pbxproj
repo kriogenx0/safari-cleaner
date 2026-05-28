@@ -1,0 +1,586 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D0337768C01D484C88A6D30E = {
+			isa = PBXBuildFile;
+			fileRef = EE28C1ADDB354734AE435822;
+		};
+
+		AB236EE0F43E40B38FCA1D37 = {
+			isa = PBXBuildFile;
+			fileRef = 3C31D55229A04AEB8659B36F;
+		};
+
+		0200DE090DA940FEBE499F6D = {
+			isa = PBXBuildFile;
+			fileRef = 856A5A07B3AF4C06BF4FC8A2;
+		};
+
+		458F66305EB048E5BBDCB115 = {
+			isa = PBXBuildFile;
+			fileRef = BA7F7083287E40C39F7B2A6E;
+		};
+
+		1830027A140C4934A2F56674 = {
+			isa = PBXBuildFile;
+			fileRef = C755BE5BC9BF4089B2B516B6;
+		};
+
+		FF1E6A33F6F647939E5B9C91 = {
+			isa = PBXBuildFile;
+			fileRef = 81CFA38D24F948FC9E2A71BE;
+		};
+
+		691AD25ED2A64C6087BBC5D3 = {
+			isa = PBXBuildFile;
+			fileRef = EDBBFF9D0E684834ABA207DB;
+		};
+
+		CD43BE05AE134FD6A15AB777 = {
+			isa = PBXBuildFile;
+			fileRef = 40CC304D48CF486F9630B7AC;
+		};
+
+		2AA81155A25343E7AE1FEBAE = {
+			isa = PBXBuildFile;
+			fileRef = 1909985460C0409A8CA47687;
+		};
+
+		ABB8CE47B50E47B68FDDA7FD = {
+			isa = PBXBuildFile;
+			fileRef = 84E911837A464A328DC3CB8E;
+		};
+
+		C11BDE69C9D94D1E9BCC2A7C = {
+			isa = PBXBuildFile;
+			fileRef = 96E68F63EA7447258A86CF8A;
+		};
+
+		EE0EC83F526C4D98BFD3541D = {
+			isa = PBXBuildFile;
+			fileRef = FA9F8DBFA4304933BAF9084C;
+		};
+
+		29B3B0378DE24604A1BE4DDD = {
+			isa = PBXBuildFile;
+			fileRef = 201E51BE3238449D82025B8A;
+			settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); };
+		};
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		10A5A87CBC5A4FD18B651E71 = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6A3A48F9E826447FA04D7F46;
+			proxyType = 1;
+			remoteGlobalIDString = 3C82066F27364E198E4C3982;
+			remoteInfo = "Safari Swipe Extension";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8B4E679F1D774B03B351676E = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				29B3B0378DE24604A1BE4DDD,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		4732AF7B91E54659BDCBA8C1 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.application;
+			name = "Safari Swipe.app";
+			path = "Safari Swipe.app";
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+
+		201E51BE3238449D82025B8A = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.app-extension;
+			name = "Safari Swipe Extension.appex";
+			path = "Safari Swipe Extension.appex";
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+
+		EE28C1ADDB354734AE435822 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			name = "AppDelegate.swift";
+			path = "AppDelegate.swift";
+			sourceTree = "<group>";
+		};
+
+		3C31D55229A04AEB8659B36F = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			name = "ViewController.swift";
+			path = "ViewController.swift";
+			sourceTree = "<group>";
+		};
+
+		B5795B5211B34F1ABDBA01F1 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.xml;
+			name = "Info.plist";
+			path = "Info.plist";
+			sourceTree = "<group>";
+		};
+
+		8F0557DFE00542A4AEB144C5 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.entitlements;
+			name = "SafariSwipe.entitlements";
+			path = "SafariSwipe.entitlements";
+			sourceTree = "<group>";
+		};
+
+		BA7F7083287E40C39F7B2A6E = {
+			isa = PBXFileReference;
+			lastKnownFileType = file.storyboard;
+			name = "Main.storyboard";
+			path = "Base.lproj/Main.storyboard";
+			sourceTree = "<group>";
+		};
+
+		C755BE5BC9BF4089B2B516B6 = {
+			isa = PBXFileReference;
+			lastKnownFileType = folder.assetcatalog;
+			name = "Assets.xcassets";
+			path = "Assets.xcassets";
+			sourceTree = "<group>";
+		};
+
+		856A5A07B3AF4C06BF4FC8A2 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			name = "SafariWebExtensionHandler.swift";
+			path = "SafariWebExtensionHandler.swift";
+			sourceTree = "<group>";
+		};
+
+		E6BAE5B761D14E0AB56906D0 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.xml;
+			name = "Info.plist";
+			path = "Info.plist";
+			sourceTree = "<group>";
+		};
+
+		A42DE250C81A43CAB7753EB5 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.entitlements;
+			name = "SafariSwipeExtension.entitlements";
+			path = "SafariSwipeExtension.entitlements";
+			sourceTree = "<group>";
+		};
+
+		81CFA38D24F948FC9E2A71BE = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.json;
+			name = "manifest.json";
+			path = "Resources/manifest.json";
+			sourceTree = "<group>";
+		};
+
+		EDBBFF9D0E684834ABA207DB = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.javascript;
+			name = "background.js";
+			path = "Resources/background.js";
+			sourceTree = "<group>";
+		};
+
+		40CC304D48CF486F9630B7AC = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.javascript;
+			name = "content.js";
+			path = "Resources/content.js";
+			sourceTree = "<group>";
+		};
+
+		1909985460C0409A8CA47687 = {
+			isa = PBXFileReference;
+			lastKnownFileType = image.png;
+			name = "icon-48.png";
+			path = "Resources/images/icon-48.png";
+			sourceTree = "<group>";
+		};
+
+		84E911837A464A328DC3CB8E = {
+			isa = PBXFileReference;
+			lastKnownFileType = image.png;
+			name = "icon-96.png";
+			path = "Resources/images/icon-96.png";
+			sourceTree = "<group>";
+		};
+
+		96E68F63EA7447258A86CF8A = {
+			isa = PBXFileReference;
+			lastKnownFileType = image.png;
+			name = "icon-128.png";
+			path = "Resources/images/icon-128.png";
+			sourceTree = "<group>";
+		};
+
+		FA9F8DBFA4304933BAF9084C = {
+			isa = PBXFileReference;
+			lastKnownFileType = image.png;
+			name = "icon-256.png";
+			path = "Resources/images/icon-256.png";
+			sourceTree = "<group>";
+		};
+
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1D38301EA3674CE18587E32F = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = ();
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0AEB1883DAFB4C499E78B76C = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = ();
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0E32E85C952149199441408B = {
+			isa = PBXGroup;
+			children = (
+				5762B72F3C964BB5A79B39B0,
+				15C1EB15DE6640B08EAF4949,
+				E5452A60EFA84A019BDC4929,
+			);
+			sourceTree = "<group>";
+		};
+		E5452A60EFA84A019BDC4929 = {
+			isa = PBXGroup;
+			children = (
+				4732AF7B91E54659BDCBA8C1,
+				201E51BE3238449D82025B8A,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5762B72F3C964BB5A79B39B0 = {
+			isa = PBXGroup;
+			children = (
+				EE28C1ADDB354734AE435822,
+				3C31D55229A04AEB8659B36F,
+				BA7F7083287E40C39F7B2A6E,
+				C755BE5BC9BF4089B2B516B6,
+				B5795B5211B34F1ABDBA01F1,
+				8F0557DFE00542A4AEB144C5,
+			);
+			name = "Safari Swipe";
+			path = "Safari Swipe";
+			sourceTree = "<group>";
+		};
+		15C1EB15DE6640B08EAF4949 = {
+			isa = PBXGroup;
+			children = (
+				856A5A07B3AF4C06BF4FC8A2,
+				D40E0E1A1C1B4A0EAAC056EB,
+				E6BAE5B761D14E0AB56906D0,
+				A42DE250C81A43CAB7753EB5,
+			);
+			name = "Safari Swipe Extension";
+			path = "Safari Swipe Extension";
+			sourceTree = "<group>";
+		};
+		D40E0E1A1C1B4A0EAAC056EB = {
+			isa = PBXGroup;
+			children = (
+				81CFA38D24F948FC9E2A71BE,
+				EDBBFF9D0E684834ABA207DB,
+				40CC304D48CF486F9630B7AC,
+				1909985460C0409A8CA47687,
+				84E911837A464A328DC3CB8E,
+				96E68F63EA7447258A86CF8A,
+				FA9F8DBFA4304933BAF9084C,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BB20D0DAC79545B9BACE9077 = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2B1D70A187A74C178F1CBC9F;
+			buildPhases = (
+				CEFDC83E6AEC458BB3012CD4,
+				2127D3ABD7164569955CE28C,
+				1D38301EA3674CE18587E32F,
+				8B4E679F1D774B03B351676E,
+			);
+			buildRules = ();
+			dependencies = (
+				C926659FBE4E4F73AE711A8A,
+			);
+			name = "Safari Swipe";
+			productName = "Safari Swipe";
+			productReference = 4732AF7B91E54659BDCBA8C1;
+			productType = "com.apple.product-type.application";
+		};
+		3C82066F27364E198E4C3982 = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 67B2EB32B368499A82BC7564;
+			buildPhases = (
+				A09258D35DEF4234BF4D471B,
+				5AB77A62FFF84886B7A3CB48,
+				0AEB1883DAFB4C499E78B76C,
+			);
+			buildRules = ();
+			dependencies = ();
+			name = "Safari Swipe Extension";
+			productName = "Safari Swipe Extension";
+			productReference = 201E51BE3238449D82025B8A;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6A3A48F9E826447FA04D7F46 = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					BB20D0DAC79545B9BACE9077 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					3C82066F27364E198E4C3982 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = FD60B4E2A2ED415B83B1C6A7;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 0E32E85C952149199441408B;
+			productRefGroup = E5452A60EFA84A019BDC4929;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BB20D0DAC79545B9BACE9077,
+				3C82066F27364E198E4C3982,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2127D3ABD7164569955CE28C = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				458F66305EB048E5BBDCB115,
+				1830027A140C4934A2F56674,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5AB77A62FFF84886B7A3CB48 = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FF1E6A33F6F647939E5B9C91,
+				691AD25ED2A64C6087BBC5D3,
+				CD43BE05AE134FD6A15AB777,
+				2AA81155A25343E7AE1FEBAE,
+				ABB8CE47B50E47B68FDDA7FD,
+				C11BDE69C9D94D1E9BCC2A7C,
+				EE0EC83F526C4D98BFD3541D,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CEFDC83E6AEC458BB3012CD4 = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D0337768C01D484C88A6D30E,
+				AB236EE0F43E40B38FCA1D37,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A09258D35DEF4234BF4D471B = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0200DE090DA940FEBE499F6D,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C926659FBE4E4F73AE711A8A = {
+			isa = PBXTargetDependency;
+			target = 3C82066F27364E198E4C3982;
+			targetProxy = 10A5A87CBC5A4FD18B651E71;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		7316187E5374432EA333FBEB = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		5F5F2F6EA75F449D966E9900 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+			};
+			name = Release;
+		};
+		87A9D5A57F164CF9AF14C611 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSET_CATALOG_COMPILER_OPTIMIZATION = space;
+				CODE_SIGN_ENTITLEMENTS = "Safari Swipe/SafariSwipe.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = "Safari Swipe/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.alexv.safari-swipe";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		E70BFA1DCA36419F97C3A312 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSET_CATALOG_COMPILER_OPTIMIZATION = space;
+				CODE_SIGN_ENTITLEMENTS = "Safari Swipe/SafariSwipe.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = "Safari Swipe/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.alexv.safari-swipe";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		78A5B6AC393D48DFB00DE822 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Safari Swipe Extension/SafariSwipeExtension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = "Safari Swipe Extension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.alexv.safari-swipe.Extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		D96579E6D7774ED3823A7AB9 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Safari Swipe Extension/SafariSwipeExtension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = "Safari Swipe Extension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.alexv.safari-swipe.Extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FD60B4E2A2ED415B83B1C6A7 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7316187E5374432EA333FBEB,
+				5F5F2F6EA75F449D966E9900,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2B1D70A187A74C178F1CBC9F = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				87A9D5A57F164CF9AF14C611,
+				E70BFA1DCA36419F97C3A312,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		67B2EB32B368499A82BC7564 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				78A5B6AC393D48DFB00DE822,
+				D96579E6D7774ED3823A7AB9,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = 6A3A48F9E826447FA04D7F46;
+}
