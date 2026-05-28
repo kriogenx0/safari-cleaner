@@ -2,11 +2,12 @@ APP     := Safari Swipe
 SCHEME  := Safari Swipe
 PROJECT := SafariSwipe/SafariSwipe.xcodeproj
 
-BUILD   := build
-PRODUCT := $(BUILD)/Build/Products/Release/$(APP).app
-DEST    := $(HOME)/Applications/$(APP).app
+BUILD       := build
+DEV_APP     := $(BUILD)/Build/Products/Debug/$(APP).app
+RELEASE_APP := $(BUILD)/Build/Products/Release/$(APP).app
+DEST        := $(HOME)/Applications/$(APP).app
 
-.PHONY: all generate icons build install uninstall run clean help
+.PHONY: all generate icons build dev run publish install open uninstall clean help
 
 all: build
 
@@ -22,8 +23,21 @@ icons:
 $(PROJECT):
 	python3 generate_project.py
 
-# Build the app in Release mode (requires Xcode)
+# Build for dev (Debug). Don't open.
 build: $(PROJECT)
+	xcodebuild \
+		-project "$(PROJECT)" \
+		-scheme "$(SCHEME)" \
+		-configuration Debug \
+		-derivedDataPath "$(BUILD)" \
+		-quiet
+
+# Just run the dev build.
+dev run:
+	open "$(DEV_APP)"
+
+# Build for production. Don't install.
+publish: $(PROJECT)
 	xcodebuild \
 		-project "$(PROJECT)" \
 		-scheme "$(SCHEME)" \
@@ -31,39 +45,42 @@ build: $(PROJECT)
 		-derivedDataPath "$(BUILD)" \
 		-quiet
 
-# Build and copy to ~/Applications
-install: build
+# Build and install to ~/Applications.
+install: publish
 	mkdir -p "$(HOME)/Applications"
 	rm -rf "$(DEST)"
-	cp -r "$(PRODUCT)" "$(DEST)"
+	cp -r "$(RELEASE_APP)" "$(DEST)"
 	@echo "Installed → $(DEST)"
 	@echo ""
 	@echo "Next steps:"
-	@echo "  1. make run"
+	@echo "  1. make open"
 	@echo "  2. Safari → Settings → Advanced → enable 'Show features for web developers'"
 	@echo "  3. Safari → Develop → Allow Unsigned Extensions  (required after every Safari restart)"
 	@echo "  4. Safari → Settings → Extensions → enable Safari Swipe"
 
-# Remove the installed app
+# Open production. Build and install if it doesn't exist.
+open:
+	@test -d "$(DEST)" || $(MAKE) install
+	open "$(DEST)"
+
+# Remove the installed app.
 uninstall:
 	rm -rf "$(DEST)"
 	@echo "Uninstalled $(APP)"
 
-# Open the installed app
-run:
-	open "$(DEST)"
-	@echo "Now: Safari → Develop → Allow Unsigned Extensions, then Settings → Extensions → Safari Swipe"
-
-# Remove build artifacts
+# Remove all build artifacts and caches.
 clean:
 	rm -rf "$(BUILD)"
 
 help:
 	@echo "Targets:"
-	@echo "  make build      Build the app (requires Xcode)"
+	@echo "  make build      Build for dev (Debug)"
+	@echo "  make dev        Open the dev build"
+	@echo "  make run        Open the dev build"
+	@echo "  make publish    Build for production (Release)"
 	@echo "  make install    Build and install to ~/Applications"
+	@echo "  make open       Open production (build if needed)"
 	@echo "  make uninstall  Remove from ~/Applications"
-	@echo "  make run        Open the installed app"
 	@echo "  make generate   Regenerate Xcode project from extension sources"
 	@echo "  make icons      Regenerate icon PNGs"
-	@echo "  make clean      Remove build artifacts (.build/)"
+	@echo "  make clean      Remove all build artifacts and caches"
