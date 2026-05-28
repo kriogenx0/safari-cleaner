@@ -6,7 +6,7 @@ BUILD   := build
 PRODUCT := $(BUILD)/Build/Products/Release/$(APP).app
 DEST    := $(HOME)/Applications/$(APP).app
 
-.PHONY: all generate icons build install run clean help
+.PHONY: all generate icons build install uninstall run clean help
 
 all: build
 
@@ -44,6 +44,11 @@ install: build
 	@echo "  3. Safari → Develop → Allow Unsigned Extensions  (required after every Safari restart)"
 	@echo "  4. Safari → Settings → Extensions → enable Safari Swipe"
 
+# Remove the installed app
+uninstall:
+	rm -rf "$(DEST)"
+	@echo "Uninstalled $(APP)"
+
 # Open the installed app
 run:
 	open "$(DEST)"
@@ -57,6 +62,7 @@ help:
 	@echo "Targets:"
 	@echo "  make build      Build the app (requires Xcode)"
 	@echo "  make install    Build and install to ~/Applications"
+	@echo "  make uninstall  Remove from ~/Applications"
 	@echo "  make run        Open the installed app"
 	@echo "  make generate   Regenerate Xcode project from extension sources"
 	@echo "  make icons      Regenerate icon PNGs"
