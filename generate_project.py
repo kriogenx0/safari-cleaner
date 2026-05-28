@@ -560,8 +560,12 @@ class ViewController: NSViewController {{
           toolsVersion="21701" targetRuntime="MacOSX.cocoa"
           propertyAccessControl="none" useAutolayout="YES"
           customObjectInstantiationMethod="direct">
-    <dependencies><deployment identifier="macosx"/></dependencies>
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21701"/>
+    </dependencies>
     <scenes>
+        <!--Application-->
         <scene sceneID="KUk-hi-LPx">
             <objects>
                 <application id="hnI-AP-oxe" sceneMemberID="applicationObject">
@@ -569,7 +573,7 @@ class ViewController: NSViewController {{
                         <outlet property="delegate" destination="Voe-Tx-rLC" id="GzC-gU-4Tm"/>
                     </connections>
                 </application>
-                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="SafariSwipe"
+                <customObject id="Voe-Tx-rLC" customClass="AppDelegate"
                               customModuleProvider="target" sceneMemberID="delegate"/>
                 <customObject id="YLy-65-1bz" customClass="NSFontManager" sceneMemberID="fontManager"/>
                 <menu title="Main Menu" systemMenu="main" id="AV2-I0-qfu">
@@ -578,7 +582,9 @@ class ViewController: NSViewController {{
                             <menu title="Safari Swipe" systemMenu="apple" id="uQy-DD-JDr">
                                 <items>
                                     <menuItem title="Quit Safari Swipe" keyEquivalent="q" id="4sb-4s-VLi">
-                                        <connections><action selector="terminate:" target="Xt5-WX-oUL" id="Te7-pn-YzF"/></connections>
+                                        <connections>
+                                            <action selector="terminate:" target="Xt5-WX-oUL" id="Te7-pn-YzF"/>
+                                        </connections>
                                     </menuItem>
                                 </items>
                             </menu>
@@ -587,17 +593,32 @@ class ViewController: NSViewController {{
                 </menu>
             </objects>
         </scene>
+        <!--Window Controller-->
+        <scene sceneID="R3b-YO-oXw">
+            <objects>
+                <windowController id="B8D-0N-5wS" isInitialViewController="YES" sceneMemberID="viewController">
+                    <window key="window" title="Safari Swipe" allowsToolTipsWhenApplicationIsInactive="NO"
+                            autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO"
+                            animationBehavior="default" id="IB4-Ba-kVH">
+                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+                        <rect key="contentRect" x="196" y="240" width="480" height="270"/>
+                        <windowPositionMask key="initialPositionMask" leftStrut="YES" bottomStrut="YES"/>
+                    </window>
+                    <connections>
+                        <segue destination="XfS-ot-5p1" kind="relationship"
+                               relationship="window.shadowedContentViewController" id="cau-5T-oXA"/>
+                    </connections>
+                </windowController>
+            </objects>
+        </scene>
+        <!--View Controller-->
         <scene sceneID="hIz-AP-VOD">
             <objects>
-                <window title="Safari Swipe" allowsToolTipsWhenApplicationIsInactive="NO"
-                        autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO"
-                        animationBehavior="default" id="QvC-M9-y7g" sceneMemberID="viewController">
-                    <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
-                    <rect key="contentRect" x="196" y="240" width="480" height="270"/>
-                    <windowPositionMask key="initialPositionMask" leftStrut="YES" bottomStrut="YES"/>
-                    <view key="contentView" wantsLayer="YES" id="EiT-Mj-1SZ">
+                <viewController id="XfS-ot-5p1" customClass="ViewController"
+                                customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" wantsLayer="YES" id="EiT-Mj-1SZ">
                         <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
-                        <autoresizingMask key="autoresizingMask"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button verticalHuggingPriority="750" id="KOo-zK-BGd">
                                 <rect key="frame" x="168" y="116" width="144" height="32"/>
@@ -609,15 +630,12 @@ class ViewController: NSViewController {{
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
                                 <connections>
-                                    <action selector="openExtensionPrefs:" target="-2" id="Y6b-OD-oYU"/>
+                                    <action selector="openExtensionPrefs:" target="XfS-ot-5p1" id="Y6b-OD-oYU"/>
                                 </connections>
                             </button>
                         </subviews>
                     </view>
-                    <point key="canvasLocation" x="75" y="245"/>
-                </window>
-                <customObject id="-2" userLabel="File's Owner" customClass="ViewController"
-                              customModule="SafariSwipe" customModuleProvider="target" sceneMemberID="menus"/>
+                </viewController>
             </objects>
         </scene>
     </scenes>
