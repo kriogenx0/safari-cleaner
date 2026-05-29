@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "Safari Swipe",
+    "name": "Safari Cleaner",
     "version": "1.0",
     "description": "Review your bookmarks — keep or delete, one at a time.",
     "permissions": ["bookmarks", "storage", "scripting", "tabs"],

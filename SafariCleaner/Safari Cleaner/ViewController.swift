@@ -15,6 +15,6 @@ class ViewController: NSViewController {
     }
 
     @objc func openExtensionPrefs(_ sender: Any?) {
-        SFSafariApplication.showPreferencesForExtension(withIdentifier: "com.alexv.safari-swipe.Extension") { _ in }
+        SFSafariApplication.showPreferencesForExtension(withIdentifier: "com.alexv.safari-cleaner.Extension") { _ in }
     }
 }

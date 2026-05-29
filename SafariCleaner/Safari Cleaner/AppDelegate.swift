@@ -12,7 +12,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             backing: .buffered,
             defer: false
         )
-        win.title = "Safari Swipe"
+        win.title = "Safari Cleaner"
         win.contentViewController = vc
         win.makeKeyAndOrderFront(nil)
         window = win

@@ -1,6 +1,6 @@
-APP     := Safari Swipe
-SCHEME  := Safari Swipe
-PROJECT := SafariSwipe/SafariSwipe.xcodeproj
+APP     := Safari Cleaner
+SCHEME  := Safari Cleaner
+PROJECT := SafariCleaner/SafariCleaner.xcodeproj
 
 BUILD       := build
 DEV_APP     := $(BUILD)/Build/Products/Debug/$(APP).app
@@ -90,7 +90,7 @@ reinstall-open:
 
 # Close the app and remove it from Safari.
 uninstall:
-	-killall "$(APP)"
+	$(MAKE) close
 	-killall "Safari"
 	rm -rf "$(DEST)"
 	@echo "Uninstalled $(APP)"

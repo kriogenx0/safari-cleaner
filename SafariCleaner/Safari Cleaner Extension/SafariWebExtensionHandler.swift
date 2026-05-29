@@ -7,7 +7,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     func beginRequest(with context: NSExtensionContext) {
         let item = context.inputItems[0] as? NSExtensionItem
         let message = item?.userInfo?[SFExtensionMessageKey]
-        os_log(.default, "Safari Swipe received message from browser.runtime.sendNativeMessage: %@", message as! CVarArg)
+        os_log(.default, "Safari Cleaner received message from browser.runtime.sendNativeMessage: %@", message as! CVarArg)
         let response = NSExtensionItem()
         response.userInfo = [SFExtensionMessageKey: ["Response": "Received"]]
         context.completeRequest(returningItems: [response], completionHandler: nil)

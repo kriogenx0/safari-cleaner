@@ -7,86 +7,96 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D8C9536DE35148C28B4CFD35 = {
+		25F462D6BC5B46969A925519 = {
 			isa = PBXBuildFile;
-			fileRef = 1C0C836CB1A640F9AC7968BD;
+			fileRef = DB15C3EC0AE8409D867EEB05;
 		};
 
-		8196D1A5C7F94FA0BA87E244 = {
+		FA4A5456519641E3A0F1B9EA = {
 			isa = PBXBuildFile;
-			fileRef = ECED70DA02B94A97A79E56EF;
+			fileRef = A0DED76B232442DB8B1D1AB6;
 		};
 
-		55A45CD459C94957A9072B7F = {
+		83A899DBEB144B98BC01F3A9 = {
 			isa = PBXBuildFile;
-			fileRef = 683CD2A1E9CF4A0FAC8DFA50;
+			fileRef = 8AD453B03D1641D598F07358;
 		};
 
-		9C3ADF7CE86342C98B3D7198 = {
+		4801CA38773A44ED833F6451 = {
 			isa = PBXBuildFile;
-			fileRef = E5BABC7BF8454ECBB274D91F;
+			fileRef = 4341169A17BA4F1F8648E6F5;
 		};
 
-		D155ADD8254A4C65B2F8CC7F = {
+		AE8F0D39C4C149009E72C202 = {
 			isa = PBXBuildFile;
-			fileRef = B640A299940D46C6BE8EC440;
+			fileRef = 1E6DFAAD6329443E97F40921;
 		};
 
-		91A4E75D74F24DD399EA025E = {
+		AD437C0E78B347ECB9E3A2CA = {
 			isa = PBXBuildFile;
-			fileRef = 7A4A801E1FC64F3F9445D640;
+			fileRef = 9A7785F246F441D8B41A4386;
 		};
 
-		0120314F99DF4B5D882C4AB6 = {
+		BF25F1AF74714472A47D77DF = {
 			isa = PBXBuildFile;
-			fileRef = 27607B6BCB6B44F39028373D;
+			fileRef = 7D1666E33E20415CA051FC50;
 		};
 
-		EE3BB615875A4E639D8C048A = {
+		166646B777C343DC9B6BBAF3 = {
 			isa = PBXBuildFile;
-			fileRef = E267205395DF49C494D299D5;
+			fileRef = AA76F5E39E1F4A52872A132B;
 		};
 
-		C751E0BF6E574120BD4EC270 = {
+		BCC36F3870014E57AD751860 = {
 			isa = PBXBuildFile;
-			fileRef = AEA6B37AF3EF4F14A5F8B2E4;
+			fileRef = 4B5597DD66534206967AB729;
 		};
 
-		C7EBF021A2FC4A68A6D2F85B = {
+		E85FD34C34684B66AD09DEB9 = {
 			isa = PBXBuildFile;
-			fileRef = E459875AD8C9414CBEE33914;
+			fileRef = 2289739C02AF4EB1B201334A;
 		};
 
-		EB43D0EB469F4FDAAD7FC43B = {
+		33AC2BA86F104B5FB47279D7 = {
 			isa = PBXBuildFile;
-			fileRef = 6039EE667A4A4291A3201D72;
+			fileRef = 2A5490F78650405CA8698CB7;
 		};
 
-		9B20D28AFE0E4398A6D4DBB2 = {
+		2C29A7451E1F4891AA668136 = {
 			isa = PBXBuildFile;
-			fileRef = 8D73577F4E484ED0B503454E;
+			fileRef = 1A7719D7429849DD863E5071;
+		};
+
+		4A58100B885148ACAC645DCE = {
+			isa = PBXBuildFile;
+			fileRef = FA9D5E0AA016435CADC8D3CD;
+		};
+
+		269505A3D21E43C7AD235306 = {
+			isa = PBXBuildFile;
+			fileRef = 6180886AB8B44A1B8A11B92A;
 			settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); };
 		};
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		57655CE9007840438820CE13 = {
+		12D597937D4F4391B66D9EC4 = {
 			isa = PBXContainerItemProxy;
-			containerPortal = F7FB8F08CDFC4BF5A92DA0F8;
+			containerPortal = 6317804A3DA045FDB21CC597;
 			proxyType = 1;
-			remoteGlobalIDString = E676CE4FB1F645A693790BA4;
-			remoteInfo = "Safari Swipe Extension";
+			remoteGlobalIDString = BA81D0E0A2C544D5A4F252B2;
+			remoteInfo = "Safari Cleaner Extension";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		3E33F60140924B83AB8FC139 = {
+		F9B9E110DDB6425C80211837 = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				9B20D28AFE0E4398A6D4DBB2,
+				269505A3D21E43C7AD235306,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -94,23 +104,23 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		D20BFF8C55EE421D9F185D8F = {
+		0072A2A8C456446C89EF25C7 = {
 			isa = PBXFileReference;
 			lastKnownFileType = wrapper.application;
-			name = "Safari Swipe.app";
-			path = "Safari Swipe.app";
+			name = "Safari Cleaner.app";
+			path = "Safari Cleaner.app";
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 
-		8D73577F4E484ED0B503454E = {
+		6180886AB8B44A1B8A11B92A = {
 			isa = PBXFileReference;
 			lastKnownFileType = wrapper.app-extension;
-			name = "Safari Swipe Extension.appex";
-			path = "Safari Swipe Extension.appex";
+			name = "Safari Cleaner Extension.appex";
+			path = "Safari Cleaner Extension.appex";
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 
-		1C0C836CB1A640F9AC7968BD = {
+		DB15C3EC0AE8409D867EEB05 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.swift;
 			name = "AppDelegate.swift";
@@ -118,7 +128,7 @@
 			sourceTree = "<group>";
 		};
 
-		ECED70DA02B94A97A79E56EF = {
+		A0DED76B232442DB8B1D1AB6 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.swift;
 			name = "ViewController.swift";
@@ -126,7 +136,7 @@
 			sourceTree = "<group>";
 		};
 
-		BFEE636B814B42D39910F6BB = {
+		D0EE4C2DC9B6447C907F9C05 = {
 			isa = PBXFileReference;
 			lastKnownFileType = text.plist.xml;
 			name = "Info.plist";
@@ -134,15 +144,15 @@
 			sourceTree = "<group>";
 		};
 
-		CB9A2857FD8744F0837BE9AF = {
+		A1A2B5659A32493BBD879F80 = {
 			isa = PBXFileReference;
 			lastKnownFileType = text.plist.entitlements;
-			name = "SafariSwipe.entitlements";
-			path = "SafariSwipe.entitlements";
+			name = "SafariCleaner.entitlements";
+			path = "SafariCleaner.entitlements";
 			sourceTree = "<group>";
 		};
 
-		E5BABC7BF8454ECBB274D91F = {
+		4341169A17BA4F1F8648E6F5 = {
 			isa = PBXFileReference;
 			lastKnownFileType = folder.assetcatalog;
 			name = "Assets.xcassets";
@@ -150,7 +160,7 @@
 			sourceTree = "<group>";
 		};
 
-		683CD2A1E9CF4A0FAC8DFA50 = {
+		8AD453B03D1641D598F07358 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.swift;
 			name = "SafariWebExtensionHandler.swift";
@@ -158,7 +168,7 @@
 			sourceTree = "<group>";
 		};
 
-		222D0E071CB04F3A84BAC68C = {
+		5F1A9B6F88F84E7BBB8988C5 = {
 			isa = PBXFileReference;
 			lastKnownFileType = text.plist.xml;
 			name = "Info.plist";
@@ -166,15 +176,15 @@
 			sourceTree = "<group>";
 		};
 
-		CCF1FE660BC34DF4BED8C809 = {
+		6E00F8164F7D4A85A204C042 = {
 			isa = PBXFileReference;
 			lastKnownFileType = text.plist.entitlements;
-			name = "SafariSwipeExtension.entitlements";
-			path = "SafariSwipeExtension.entitlements";
+			name = "SafariCleanerExtension.entitlements";
+			path = "SafariCleanerExtension.entitlements";
 			sourceTree = "<group>";
 		};
 
-		B640A299940D46C6BE8EC440 = {
+		1E6DFAAD6329443E97F40921 = {
 			isa = PBXFileReference;
 			lastKnownFileType = text.json;
 			name = "manifest.json";
@@ -182,7 +192,7 @@
 			sourceTree = "<group>";
 		};
 
-		7A4A801E1FC64F3F9445D640 = {
+		9A7785F246F441D8B41A4386 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.javascript;
 			name = "background.js";
@@ -190,7 +200,7 @@
 			sourceTree = "<group>";
 		};
 
-		27607B6BCB6B44F39028373D = {
+		7D1666E33E20415CA051FC50 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.javascript;
 			name = "content.js";
@@ -198,7 +208,23 @@
 			sourceTree = "<group>";
 		};
 
-		E267205395DF49C494D299D5 = {
+		AA76F5E39E1F4A52872A132B = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.html;
+			name = "popup.html";
+			path = "Resources/popup.html";
+			sourceTree = "<group>";
+		};
+
+		4B5597DD66534206967AB729 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.javascript;
+			name = "popup.js";
+			path = "Resources/popup.js";
+			sourceTree = "<group>";
+		};
+
+		2289739C02AF4EB1B201334A = {
 			isa = PBXFileReference;
 			lastKnownFileType = image.png;
 			name = "icon-48.png";
@@ -206,7 +232,7 @@
 			sourceTree = "<group>";
 		};
 
-		AEA6B37AF3EF4F14A5F8B2E4 = {
+		2A5490F78650405CA8698CB7 = {
 			isa = PBXFileReference;
 			lastKnownFileType = image.png;
 			name = "icon-96.png";
@@ -214,7 +240,7 @@
 			sourceTree = "<group>";
 		};
 
-		E459875AD8C9414CBEE33914 = {
+		1A7719D7429849DD863E5071 = {
 			isa = PBXFileReference;
 			lastKnownFileType = image.png;
 			name = "icon-128.png";
@@ -222,7 +248,7 @@
 			sourceTree = "<group>";
 		};
 
-		6039EE667A4A4291A3201D72 = {
+		FA9D5E0AA016435CADC8D3CD = {
 			isa = PBXFileReference;
 			lastKnownFileType = image.png;
 			name = "icon-256.png";
@@ -233,13 +259,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		C51C33DC44D14B379F99641E = {
+		8C63DFB9091148F1A66AC16B = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = ();
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		822D73E61D8841A99BB2658D = {
+		39A92E366A0241EA892B6F58 = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = ();
@@ -248,59 +274,59 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		FCCD80851FE446B0BFB4DF9F = {
+		C8BF7B9DD51F4E1FBDB6DEEA = {
 			isa = PBXGroup;
 			children = (
-				ACF293143D204278B095C307,
-				9FFECD2FC6AE4EB6A521A137,
-				4E15CFE201664B5183FB29AE,
+				D198B395E6D447C7B63FD906,
+				CD178CD340D041B8963DF6B9,
+				2491A66B6A1F4C24A42F768F,
 			);
 			sourceTree = "<group>";
 		};
-		4E15CFE201664B5183FB29AE = {
+		2491A66B6A1F4C24A42F768F = {
 			isa = PBXGroup;
 			children = (
-				D20BFF8C55EE421D9F185D8F,
-				8D73577F4E484ED0B503454E,
+				0072A2A8C456446C89EF25C7,
+				6180886AB8B44A1B8A11B92A,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		ACF293143D204278B095C307 = {
+		D198B395E6D447C7B63FD906 = {
 			isa = PBXGroup;
 			children = (
-				1C0C836CB1A640F9AC7968BD,
-				ECED70DA02B94A97A79E56EF,
-				E5BABC7BF8454ECBB274D91F,
-				BFEE636B814B42D39910F6BB,
-				CB9A2857FD8744F0837BE9AF,
+				DB15C3EC0AE8409D867EEB05,
+				A0DED76B232442DB8B1D1AB6,
+				4341169A17BA4F1F8648E6F5,
+				D0EE4C2DC9B6447C907F9C05,
+				A1A2B5659A32493BBD879F80,
 			);
-			name = "Safari Swipe";
-			path = "Safari Swipe";
+			name = "Safari Cleaner";
+			path = "Safari Cleaner";
 			sourceTree = "<group>";
 		};
-		9FFECD2FC6AE4EB6A521A137 = {
+		CD178CD340D041B8963DF6B9 = {
 			isa = PBXGroup;
 			children = (
-				683CD2A1E9CF4A0FAC8DFA50,
-				00C21358ACC143C1B78AA6B2,
-				222D0E071CB04F3A84BAC68C,
-				CCF1FE660BC34DF4BED8C809,
+				8AD453B03D1641D598F07358,
+				90914C741265490B9838A313,
+				5F1A9B6F88F84E7BBB8988C5,
+				6E00F8164F7D4A85A204C042,
 			);
-			name = "Safari Swipe Extension";
-			path = "Safari Swipe Extension";
+			name = "Safari Cleaner Extension";
+			path = "Safari Cleaner Extension";
 			sourceTree = "<group>";
 		};
-		00C21358ACC143C1B78AA6B2 = {
+		90914C741265490B9838A313 = {
 			isa = PBXGroup;
 			children = (
-				B640A299940D46C6BE8EC440,
-				7A4A801E1FC64F3F9445D640,
-				27607B6BCB6B44F39028373D,
-				E267205395DF49C494D299D5,
-				AEA6B37AF3EF4F14A5F8B2E4,
-				E459875AD8C9414CBEE33914,
-				6039EE667A4A4291A3201D72,
+				1E6DFAAD6329443E97F40921,
+				9A7785F246F441D8B41A4386,
+				7D1666E33E20415CA051FC50,
+				2289739C02AF4EB1B201334A,
+				2A5490F78650405CA8698CB7,
+				1A7719D7429849DD863E5071,
+				FA9D5E0AA016435CADC8D3CD,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -308,58 +334,58 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		66FFF8E03BD74F879C8C37E4 = {
+		EF4AB8CACB574FD7AF732346 = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5E3E6956B28E48F5936EA574;
+			buildConfigurationList = 59CB265008D242ACA963AA26;
 			buildPhases = (
-				27ED9C6CD90D4152ADC56C25,
-				419E8ECC0A6A452C8B559306,
-				C51C33DC44D14B379F99641E,
-				3E33F60140924B83AB8FC139,
+				B964050A4D924E2089107F28,
+				09E3393640E74A44B86E4497,
+				8C63DFB9091148F1A66AC16B,
+				F9B9E110DDB6425C80211837,
 			);
 			buildRules = ();
 			dependencies = (
-				E4831C7C443747D89E3EC86E,
+				35DD354DCF594DEDA95AB1DE,
 			);
-			name = "Safari Swipe";
-			productName = "Safari Swipe";
-			productReference = D20BFF8C55EE421D9F185D8F;
+			name = "Safari Cleaner";
+			productName = "Safari Cleaner";
+			productReference = 0072A2A8C456446C89EF25C7;
 			productType = "com.apple.product-type.application";
 		};
-		E676CE4FB1F645A693790BA4 = {
+		BA81D0E0A2C544D5A4F252B2 = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B6E584284127434FB278A102;
+			buildConfigurationList = 558F754AB8E249ADA2B264D3;
 			buildPhases = (
-				D633421E082F4B478BB6E3DD,
-				E3BB3295280D47A8A174FE5F,
-				822D73E61D8841A99BB2658D,
+				6A2591F9FFE34EFDB99B7142,
+				EF9E3285A57346FF82BB0AF9,
+				39A92E366A0241EA892B6F58,
 			);
 			buildRules = ();
 			dependencies = ();
-			name = "Safari Swipe Extension";
-			productName = "Safari Swipe Extension";
-			productReference = 8D73577F4E484ED0B503454E;
+			name = "Safari Cleaner Extension";
+			productName = "Safari Cleaner Extension";
+			productReference = 6180886AB8B44A1B8A11B92A;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		F7FB8F08CDFC4BF5A92DA0F8 = {
+		6317804A3DA045FDB21CC597 = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
-					66FFF8E03BD74F879C8C37E4 = {
+					EF4AB8CACB574FD7AF732346 = {
 						CreatedOnToolsVersion = 15.0;
 					};
-					E676CE4FB1F645A693790BA4 = {
+					BA81D0E0A2C544D5A4F252B2 = {
 						CreatedOnToolsVersion = 15.0;
 					};
 				};
 			};
-			buildConfigurationList = 04D7531816B14A018EB32204;
+			buildConfigurationList = A512DA0183B549779B3EC5BC;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -367,72 +393,72 @@
 				en,
 				Base,
 			);
-			mainGroup = FCCD80851FE446B0BFB4DF9F;
-			productRefGroup = 4E15CFE201664B5183FB29AE;
+			mainGroup = C8BF7B9DD51F4E1FBDB6DEEA;
+			productRefGroup = 2491A66B6A1F4C24A42F768F;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				66FFF8E03BD74F879C8C37E4,
-				E676CE4FB1F645A693790BA4,
+				EF4AB8CACB574FD7AF732346,
+				BA81D0E0A2C544D5A4F252B2,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		419E8ECC0A6A452C8B559306 = {
+		09E3393640E74A44B86E4497 = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9C3ADF7CE86342C98B3D7198,
+				4801CA38773A44ED833F6451,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		E3BB3295280D47A8A174FE5F = {
+		EF9E3285A57346FF82BB0AF9 = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D155ADD8254A4C65B2F8CC7F,
-				91A4E75D74F24DD399EA025E,
-				0120314F99DF4B5D882C4AB6,
-				EE3BB615875A4E639D8C048A,
-				C751E0BF6E574120BD4EC270,
-				C7EBF021A2FC4A68A6D2F85B,
-				EB43D0EB469F4FDAAD7FC43B,
+				AE8F0D39C4C149009E72C202,
+				AD437C0E78B347ECB9E3A2CA,
+				BF25F1AF74714472A47D77DF,
+				E85FD34C34684B66AD09DEB9,
+				33AC2BA86F104B5FB47279D7,
+				2C29A7451E1F4891AA668136,
+				4A58100B885148ACAC645DCE,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		27ED9C6CD90D4152ADC56C25 = {
+		B964050A4D924E2089107F28 = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8C9536DE35148C28B4CFD35,
-				8196D1A5C7F94FA0BA87E244,
+				25F462D6BC5B46969A925519,
+				FA4A5456519641E3A0F1B9EA,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		D633421E082F4B478BB6E3DD = {
+		6A2591F9FFE34EFDB99B7142 = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				55A45CD459C94957A9072B7F,
+				83A899DBEB144B98BC01F3A9,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		E4831C7C443747D89E3EC86E = {
+		35DD354DCF594DEDA95AB1DE = {
 			isa = PBXTargetDependency;
-			target = E676CE4FB1F645A693790BA4;
-			targetProxy = 57655CE9007840438820CE13;
+			target = BA81D0E0A2C544D5A4F252B2;
+			targetProxy = 12D597937D4F4391B66D9EC4;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		A9214C2679424BA5A29C653A = {
+		C118800F10194F7B973D0BB4 = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -452,7 +478,7 @@
 			};
 			name = Debug;
 		};
-		19533D50E36B49D9A20C855D = {
+		3B05BE2E77624C45A4FEF9F9 = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -468,66 +494,66 @@
 			};
 			name = Release;
 		};
-		0BE43C66CF3745B583FB8267 = {
+		8D0F51A1F5F94770852C3DA4 = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSET_CATALOG_COMPILER_OPTIMIZATION = space;
-				CODE_SIGN_ENTITLEMENTS = "Safari Swipe/SafariSwipe.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "Safari Cleaner/SafariCleaner.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = "Safari Swipe/Info.plist";
+				INFOPLIST_FILE = "Safari Cleaner/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.alexv.safari-swipe";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.alexv.safari-cleaner";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
-		2FAC499566914FB187AF7F32 = {
+		1F09E163ABC6463DB06CF9CF = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSET_CATALOG_COMPILER_OPTIMIZATION = space;
-				CODE_SIGN_ENTITLEMENTS = "Safari Swipe/SafariSwipe.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "Safari Cleaner/SafariCleaner.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = "Safari Swipe/Info.plist";
+				INFOPLIST_FILE = "Safari Cleaner/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.alexv.safari-swipe";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.alexv.safari-cleaner";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
-		765C6970621F452C8E404553 = {
+		C82FA34EFE5D4D77B23EF7BE = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "Safari Swipe Extension/SafariSwipeExtension.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "Safari Cleaner Extension/SafariCleanerExtension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = "Safari Swipe Extension/Info.plist";
+				INFOPLIST_FILE = "Safari Cleaner Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.alexv.safari-swipe.Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.alexv.safari-cleaner.Extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
-		1BEF570FCAF0435996543F44 = {
+		F6C7B4A737E24E278B4328B7 = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "Safari Swipe Extension/SafariSwipeExtension.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "Safari Cleaner Extension/SafariCleanerExtension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = "Safari Swipe Extension/Info.plist";
+				INFOPLIST_FILE = "Safari Cleaner Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.alexv.safari-swipe.Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.alexv.safari-cleaner.Extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -537,29 +563,29 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		04D7531816B14A018EB32204 = {
+		A512DA0183B549779B3EC5BC = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A9214C2679424BA5A29C653A,
-				19533D50E36B49D9A20C855D,
+				C118800F10194F7B973D0BB4,
+				3B05BE2E77624C45A4FEF9F9,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5E3E6956B28E48F5936EA574 = {
+		59CB265008D242ACA963AA26 = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0BE43C66CF3745B583FB8267,
-				2FAC499566914FB187AF7F32,
+				8D0F51A1F5F94770852C3DA4,
+				1F09E163ABC6463DB06CF9CF,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B6E584284127434FB278A102 = {
+		558F754AB8E249ADA2B264D3 = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				765C6970621F452C8E404553,
-				1BEF570FCAF0435996543F44,
+				C82FA34EFE5D4D77B23EF7BE,
+				F6C7B4A737E24E278B4328B7,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -567,5 +593,5 @@
 /* End XCConfigurationList section */
 
 	};
-	rootObject = F7FB8F08CDFC4BF5A92DA0F8;
+	rootObject = 6317804A3DA045FDB21CC597;
 }

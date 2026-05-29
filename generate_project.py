@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Generates the complete Xcode project for Safari Swipe.
-Run from /Users/alexv/Sites/safari-swipe:
+Generates the complete Xcode project for Safari Cleaner.
+Run from /Users/alexv/Sites/safari-cleaner:
     python3 generate_project.py
 """
 import os, uuid, shutil, plistlib
@@ -9,12 +9,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 EXT_SRC = ROOT / "extension"
-PROJ_DIR = ROOT / "SafariSwipe"
+PROJ_DIR = ROOT / "SafariCleaner"
 
-APP_NAME      = "Safari Swipe"
-APP_ID_SAFE   = "SafariSwipe"
-BUNDLE_ID_APP = "com.alexv.safari-swipe"
-BUNDLE_ID_EXT = "com.alexv.safari-swipe.Extension"
+APP_NAME      = "Safari Cleaner"
+APP_ID_SAFE   = "SafariCleaner"
+BUNDLE_ID_APP = "com.alexv.safari-cleaner"
+BUNDLE_ID_EXT = "com.alexv.safari-cleaner.Extension"
 DEPLOY_TARGET = "14.0"
 SWIFT_VERSION = "5.0"
 
@@ -517,7 +517,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             backing: .buffered,
             defer: false
         )
-        win.title = "Safari Swipe"
+        win.title = "Safari Cleaner"
         win.contentViewController = vc
         win.makeKeyAndOrderFront(nil)
         window = win
@@ -599,7 +599,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     func beginRequest(with context: NSExtensionContext) {
         let item = context.inputItems[0] as? NSExtensionItem
         let message = item?.userInfo?[SFExtensionMessageKey]
-        os_log(.default, "Safari Swipe received message from browser.runtime.sendNativeMessage: %@", message as! CVarArg)
+        os_log(.default, "Safari Cleaner received message from browser.runtime.sendNativeMessage: %@", message as! CVarArg)
         let response = NSExtensionItem()
         response.userInfo = [SFExtensionMessageKey: ["Response": "Received"]]
         context.completeRequest(returningItems: [response], completionHandler: nil)
@@ -609,7 +609,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
     plist = dict(
         CFBundleDevelopmentRegion="$(DEVELOPMENT_LANGUAGE)",
-        CFBundleDisplayName="Safari Swipe",
+        CFBundleDisplayName="Safari Cleaner",
         CFBundleExecutable="$(EXECUTABLE_NAME)",
         CFBundleIdentifier="$(PRODUCT_BUNDLE_IDENTIFIER)",
         CFBundleInfoDictionaryVersion="6.0",
@@ -653,5 +653,5 @@ if __name__ == "__main__":
     write_project()
     write_app_sources()
     write_ext_sources()
-    print(f"\nDone! Open SafariSwipe/SafariSwipe.xcodeproj in Xcode.")
+    print(f"\nDone! Open SafariCleaner/SafariCleaner.xcodeproj in Xcode.")
     print("Then: Product > Run, then enable the extension in Safari > Settings > Extensions.")
