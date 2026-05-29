@@ -38,8 +38,24 @@
         if (!pending.length) { window.close(); return; }
 
         await sset({ reviewed: [] });
-        const tab = await browser.tabs.create({ url: pending[0].url });
+
+        // Create tab inactive so popup keeps focus and stays open
+        const tab = await browser.tabs.create({ url: pending[0].url, active: false });
         await sset({ reviewTabId: tab.id });
+
+        // Wait for tab to load, inject content script, then activate and close
+        await new Promise(resolve => {
+            const onUpdated = async (tabId, changeInfo) => {
+                if (tabId !== tab.id || changeInfo.status !== 'complete') return;
+                browser.tabs.onUpdated.removeListener(onUpdated);
+                try {
+                    await browser.scripting.executeScript({ target: { tabId }, files: ['content.js'] });
+                } catch {}
+                await browser.tabs.update(tab.id, { active: true }).catch(() => {});
+                resolve();
+            };
+            browser.tabs.onUpdated.addListener(onUpdated);
+        });
 
     } catch (e) {
         console.error('SafariCleaner:', e);
