@@ -60,25 +60,6 @@ async function setReviewTabId(id) {
     try { await browser.storage.session.set({ reviewTabId: id }); } catch {}
 }
 
-// Toolbar button: open a review tab, or focus the existing one
-async function handleToolbarClick() {
-    const existing = await getReviewTabId();
-    if (existing) {
-        try {
-            await browser.tabs.update(existing, { active: true });
-            return;
-        } catch {} // tab was closed; fall through
-    }
-
-    try { await browser.storage.session.set({ reviewed: [] }); } catch {}
-
-    const { bookmark } = await nextBookmark();
-    if (!bookmark) return;
-
-    const tab = await browser.tabs.create({ url: bookmark.url });
-    await setReviewTabId(tab.id);
-}
-
 // Inject content script when the review tab finishes loading
 browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
     if (changeInfo.status !== 'complete') return;
@@ -107,11 +88,6 @@ async function advanceReview() {
 }
 
 browser.runtime.onMessage.addListener(async ({ type, id }) => {
-    if (type === 'TOOLBAR_CLICKED') {
-        await handleToolbarClick();
-        return { ok: true };
-    }
-
     if (type === 'NEXT') return nextBookmark();
 
     if (type === 'KEEP') {

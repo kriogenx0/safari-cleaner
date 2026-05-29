@@ -68,12 +68,11 @@ open:
 close:
 	-killall "$(APP)"
 
-# Build for production, close if open, and open from build output (no ~/Applications install).
+# Build for production, close if open (no install, no open).
 rebuild-open:
 	$(MAKE) publish
 	-killall "$(APP)"
 	rm -rf "$(DEST)"
-	open "$(RELEASE_APP)"
 
 # Build for production, close if open, reinstall to ~/Applications, and open.
 reinstall:
