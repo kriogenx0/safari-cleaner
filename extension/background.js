@@ -61,7 +61,7 @@ async function setReviewTabId(id) {
 }
 
 // Toolbar button: open a review tab, or focus the existing one
-browser.action.onClicked.addListener(async () => {
+async function handleToolbarClick() {
     const existing = await getReviewTabId();
     if (existing) {
         try {
@@ -77,7 +77,7 @@ browser.action.onClicked.addListener(async () => {
 
     const tab = await browser.tabs.create({ url: bookmark.url });
     await setReviewTabId(tab.id);
-});
+}
 
 // Inject content script when the review tab finishes loading
 browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
@@ -107,6 +107,11 @@ async function advanceReview() {
 }
 
 browser.runtime.onMessage.addListener(async ({ type, id }) => {
+    if (type === 'TOOLBAR_CLICKED') {
+        await handleToolbarClick();
+        return { ok: true };
+    }
+
     if (type === 'NEXT') return nextBookmark();
 
     if (type === 'KEEP') {

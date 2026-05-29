@@ -32,7 +32,7 @@ IDS = {k: uid() for k in [
     # ext source files
     "ref_exthandler", "ref_ext_info", "ref_ext_ent",
     # ext resources (copies of web ext files)
-    "ref_manifest", "ref_background", "ref_content",
+    "ref_manifest", "ref_background", "ref_content", "ref_popup_html", "ref_popup_js",
     "ref_icon48", "ref_icon96", "ref_icon128", "ref_icon256",
     # app product
     "product_app",
@@ -42,7 +42,7 @@ IDS = {k: uid() for k in [
     "bf_appdel", "bf_viewctl", "bf_exthandler",
     # build files (resources)
     "bf_assets",
-    "bf_manifest", "bf_background", "bf_content",
+    "bf_manifest", "bf_background", "bf_content", "bf_popup_html", "bf_popup_js",
     "bf_icon48", "bf_icon96", "bf_icon128", "bf_icon256",
     # build phases
     "bp_app_sources", "bp_app_resources", "bp_app_frameworks",
@@ -97,6 +97,8 @@ def write_project():
 {pbx_build_file(I['bf_manifest'],  I['ref_manifest'])}
 {pbx_build_file(I['bf_background'],I['ref_background'])}
 {pbx_build_file(I['bf_content'],   I['ref_content'])}
+{pbx_build_file(I['bf_popup_html'],I['ref_popup_html'])}
+{pbx_build_file(I['bf_popup_js'],  I['ref_popup_js'])}
 {pbx_build_file(I['bf_icon48'],    I['ref_icon48'])}
 {pbx_build_file(I['bf_icon96'],    I['ref_icon96'])}
 {pbx_build_file(I['bf_icon128'],   I['ref_icon128'])}
@@ -146,6 +148,8 @@ def write_project():
 {pbx_file_ref(I['ref_manifest'],  "manifest.json",             "Resources/manifest.json",  "text.json")}
 {pbx_file_ref(I['ref_background'],"background.js",             "Resources/background.js",  "sourcecode.javascript")}
 {pbx_file_ref(I['ref_content'],   "content.js",                "Resources/content.js",     "sourcecode.javascript")}
+{pbx_file_ref(I['ref_popup_html'],"popup.html",                "Resources/popup.html",     "text.html")}
+{pbx_file_ref(I['ref_popup_js'],  "popup.js",                  "Resources/popup.js",       "sourcecode.javascript")}
 {pbx_file_ref(I['ref_icon48'],    "icon-48.png",               "Resources/images/icon-48.png",  "image.png")}
 {pbx_file_ref(I['ref_icon96'],    "icon-96.png",               "Resources/images/icon-96.png",  "image.png")}
 {pbx_file_ref(I['ref_icon128'],   "icon-128.png",              "Resources/images/icon-128.png", "image.png")}
@@ -635,7 +639,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     images = res / "images"
     images.mkdir(exist_ok=True)
 
-    for fname in ["manifest.json", "background.js", "content.js"]:
+    for fname in ["manifest.json", "background.js", "content.js", "popup.html", "popup.js"]:
         shutil.copy2(EXT_SRC / fname, res / fname)
         print(f"  {res / fname}")
 

@@ -7,7 +7,7 @@ DEV_APP     := $(BUILD)/Build/Products/Debug/$(APP).app
 RELEASE_APP := $(BUILD)/Build/Products/Release/$(APP).app
 DEST        := $(HOME)/Applications/$(APP).app
 
-.PHONY: all generate icons build dev run publish install open close reinstall-open rebuild-open uninstall clean help
+.PHONY: all generate icons build dev run publish install open close reinstall reinstall-open rebuild-open uninstall clean help
 
 all: rebuild-open
 
@@ -68,13 +68,24 @@ open:
 close:
 	-killall "$(APP)"
 
-# Build for production, close if open, reinstall, and open.
-reinstall-open rebuild-open:
+# Build for production, close if open, and open from build output (no ~/Applications install).
+rebuild-open:
+	$(MAKE) publish
+	-killall "$(APP)"
+	rm -rf "$(DEST)"
+	open "$(RELEASE_APP)"
+
+# Build for production, close if open, reinstall to ~/Applications, and open.
+reinstall:
 	$(MAKE) publish
 	-killall "$(APP)"
 	rm -rf "$(DEST)"
 	mkdir -p "$(HOME)/Applications"
 	cp -r "$(RELEASE_APP)" "$(DEST)"
+	@echo "Reinstalled → $(DEST)"
+
+reinstall-open:
+	$(MAKE) reinstall
 	open "$(DEST)"
 
 # Close the app and remove it from Safari.
