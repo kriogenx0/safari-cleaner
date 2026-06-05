@@ -19,6 +19,7 @@ dev:
 		-configuration Debug \
 		-derivedDataPath "$(BUILD)" \
 		-quiet
+	-killall "$(APP)" 2>/dev/null; true
 	open "$(DEV_APP)"
 
 # Build Release.
