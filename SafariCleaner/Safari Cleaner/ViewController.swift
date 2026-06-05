@@ -1,5 +1,6 @@
 import Cocoa
 import SwiftUI
+import WebKit
 
 // MARK: - Model
 
@@ -7,6 +8,14 @@ struct Bookmark: Identifiable {
     let id: String
     let title: String
     let url: String
+    let path: [String]
+}
+
+struct DuplicateGroup: Identifiable {
+    let id: String   // normalized URL
+    let url: String
+    let title: String
+    let bookmarks: [Bookmark]
 }
 
 // MARK: - Store
@@ -14,12 +23,12 @@ struct Bookmark: Identifiable {
 @MainActor
 class BookmarkStore: ObservableObject {
     @Published var pending: [Bookmark] = []
+    @Published var duplicateGroups: [DuplicateGroup] = []
+    @Published var showDuplicateReview = false
     @Published var isLoading = false
     @Published var loadError: String?
     @Published var keptCount = 0
     @Published var deletedCount = 0
-    @Published var duplicateCount = 0
-    @Published var showDedupeConfirm = false
 
     private let bookmarksURL = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Safari/Bookmarks.plist")
@@ -49,16 +58,16 @@ class BookmarkStore: ObservableObject {
         }
 
         var all: [Bookmark] = []
-        collect(node: root, into: &all)
-        duplicateCount = countDuplicates(in: all)
+        collect(node: root, path: [], into: &all)
+        duplicateGroups = computeDuplicateGroups(from: all)
         let kept = keptIDs
         pending = all.filter { !kept.contains($0.id) }
         isLoading = false
     }
 
-    private func collect(node: [String: Any], into result: inout [Bookmark]) {
-        if let type = node["WebBookmarkType"] as? String,
-           type == "WebBookmarkTypeLeaf",
+    private func collect(node: [String: Any], path: [String], into result: inout [Bookmark]) {
+        let type = node["WebBookmarkType"] as? String
+        if type == "WebBookmarkTypeLeaf",
            let urlString = node["URLString"] as? String,
            let uuid = node["WebBookmarkUUID"] as? String {
             let title: String
@@ -68,62 +77,61 @@ class BookmarkStore: ObservableObject {
             } else {
                 title = urlString
             }
-            result.append(Bookmark(id: uuid, title: title, url: urlString))
+            result.append(Bookmark(id: uuid, title: title, url: urlString, path: path))
+            return
         }
         if let children = node["Children"] as? [[String: Any]] {
-            for child in children { collect(node: child, into: &result) }
+            let folderTitle = (node["Title"] as? String) ?? ""
+            let nextPath = folderTitle.isEmpty ? path : path + [folderTitle]
+            for child in children {
+                collect(node: child, path: nextPath, into: &result)
+            }
         }
     }
 
-    // Normalize for duplicate comparison: lowercase, strip trailing slash
     private func normalizedURL(_ url: String) -> String {
         var s = url.lowercased()
         while s.hasSuffix("/") { s.removeLast() }
         return s
     }
 
-    private func countDuplicates(in bookmarks: [Bookmark]) -> Int {
-        var seen = Set<String>()
-        var count = 0
+    private func computeDuplicateGroups(from bookmarks: [Bookmark]) -> [DuplicateGroup] {
+        var groups: [String: [Bookmark]] = [:]
+        var order: [String] = []
         for b in bookmarks {
             let key = normalizedURL(b.url)
-            if seen.contains(key) { count += 1 } else { seen.insert(key) }
+            if groups[key] == nil { order.append(key) }
+            groups[key, default: []].append(b)
         }
-        return count
+        return order.compactMap { key -> DuplicateGroup? in
+            guard let group = groups[key], group.count > 1 else { return nil }
+            return DuplicateGroup(id: key, url: group[0].url, title: group[0].title, bookmarks: group)
+        }
     }
 
-    func dedupeAll() {
-        let removed = duplicateCount
+    func keepDuplicate(groupID: String, keepID: String) {
+        guard let groupIndex = duplicateGroups.firstIndex(where: { $0.id == groupID }) else { return }
+        let group = duplicateGroups[groupIndex]
+        let toDelete = group.bookmarks.filter { $0.id != keepID }
 
         guard let data = try? Data(contentsOf: bookmarksURL),
-              var root = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else { return }
+              var root = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
+            duplicateGroups.remove(at: groupIndex)
+            return
+        }
 
-        var seen = Set<String>()
-        removeDuplicates(from: &root, seen: &seen)
+        for bookmark in toDelete {
+            remove(id: bookmark.id, from: &root)
+        }
 
         if let newData = try? PropertyListSerialization.data(fromPropertyList: root, format: .binary, options: 0) {
             try? newData.write(to: bookmarksURL)
         }
 
-        load()
-        deletedCount = removed
-    }
-
-    private func removeDuplicates(from node: inout [String: Any], seen: inout Set<String>) {
-        guard let children = node["Children"] as? [[String: Any]] else { return }
-        var updated: [[String: Any]] = []
-        for var child in children {
-            if let type = child["WebBookmarkType"] as? String,
-               type == "WebBookmarkTypeLeaf",
-               let url = child["URLString"] as? String {
-                let key = normalizedURL(url)
-                if seen.contains(key) { continue }
-                seen.insert(key)
-            }
-            removeDuplicates(from: &child, seen: &seen)
-            updated.append(child)
-        }
-        node["Children"] = updated
+        let deletedIDs = Set(toDelete.map { $0.id })
+        pending.removeAll { deletedIDs.contains($0.id) }
+        deletedCount += toDelete.count
+        duplicateGroups.remove(at: groupIndex)
     }
 
     func keep() {
@@ -170,6 +178,31 @@ class BookmarkStore: ObservableObject {
     }
 }
 
+// MARK: - WebView
+
+struct WebView: NSViewRepresentable {
+    let url: URL
+
+    class Coordinator {
+        var loadedURL: String = ""
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
+    func makeNSView(context: Context) -> WKWebView {
+        let view = WKWebView()
+        view.load(URLRequest(url: url))
+        context.coordinator.loadedURL = url.absoluteString
+        return view
+    }
+
+    func updateNSView(_ view: WKWebView, context: Context) {
+        guard context.coordinator.loadedURL != url.absoluteString else { return }
+        view.load(URLRequest(url: url))
+        context.coordinator.loadedURL = url.absoluteString
+    }
+}
+
 // MARK: - Views
 
 struct BookmarkReviewView: View {
@@ -190,14 +223,8 @@ struct BookmarkReviewView: View {
         }
         .frame(minWidth: 460, minHeight: 420)
         .onAppear { store.load() }
-        .alert(
-            "Remove \(store.duplicateCount) Duplicate Bookmark\(store.duplicateCount == 1 ? "" : "s")?",
-            isPresented: $store.showDedupeConfirm
-        ) {
-            Button("Remove", role: .destructive) { store.dedupeAll() }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Keeps the first occurrence of each URL and deletes the rest.")
+        .sheet(isPresented: $store.showDuplicateReview) {
+            DuplicatesSheet(store: store)
         }
     }
 
@@ -245,10 +272,11 @@ struct BookmarkReviewView: View {
             HStack(spacing: 10) {
                 Image(systemName: "doc.on.doc.fill")
                     .foregroundStyle(.orange)
-                Text("\(store.duplicateCount) duplicate URL\(store.duplicateCount == 1 ? "" : "s") found")
+                let count = store.duplicateGroups.count
+                Text("\(count) URL\(count == 1 ? "" : "s") saved in multiple locations")
                     .font(.subheadline)
                 Spacer()
-                Button("Remove Duplicates") { store.showDedupeConfirm = true }
+                Button("Review Duplicates") { store.showDuplicateReview = true }
                     .controlSize(.small)
                     .buttonStyle(.bordered)
             }
@@ -281,7 +309,7 @@ struct BookmarkReviewView: View {
 
             Divider()
 
-            if store.duplicateCount > 0 {
+            if !store.duplicateGroups.isEmpty {
                 dupeBanner
             }
 
@@ -339,5 +367,110 @@ struct BookmarkReviewView: View {
                 .foregroundStyle(.tertiary)
                 .padding(.bottom, 8)
         }
+    }
+}
+
+// MARK: - Duplicates Sheet
+
+struct DuplicatesSheet: View {
+    @ObservedObject var store: BookmarkStore
+
+    var body: some View {
+        if store.duplicateGroups.isEmpty {
+            VStack(spacing: 20) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 48))
+                    .foregroundStyle(.green)
+                Text("All duplicates resolved!")
+                    .font(.title2).bold()
+                Button("Done") { store.showDuplicateReview = false }
+                    .buttonStyle(.borderedProminent)
+            }
+            .padding(40)
+            .frame(width: 560)
+        } else {
+            DuplicateGroupView(store: store, group: store.duplicateGroups[0])
+        }
+    }
+}
+
+struct DuplicateGroupView: View {
+    @ObservedObject var store: BookmarkStore
+    let group: DuplicateGroup
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                let count = store.duplicateGroups.count
+                Text("\(count) duplicate URL\(count == 1 ? "" : "s") to review")
+                    .font(.headline)
+                Spacer()
+                Button("Close") { store.showDuplicateReview = false }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 14)
+
+            Divider()
+
+            // Live webpage
+            if let url = URL(string: group.url) {
+                WebView(url: url)
+                    .frame(height: 240)
+            }
+
+            Divider()
+
+            // URL info
+            VStack(alignment: .leading, spacing: 3) {
+                Text(group.title)
+                    .font(.headline)
+                    .lineLimit(2)
+                Text(group.url)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
+
+            Divider()
+
+            Text("Saved in \(group.bookmarks.count) locations — choose which one to keep:")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 10)
+                .padding(.bottom, 4)
+
+            ScrollView {
+                VStack(spacing: 0) {
+                    ForEach(group.bookmarks) { bookmark in
+                        HStack(spacing: 12) {
+                            Image(systemName: "folder")
+                                .foregroundStyle(.secondary)
+                                .frame(width: 16)
+                            Text(bookmark.path.isEmpty ? "Bookmarks Root" : bookmark.path.joined(separator: " / "))
+                                .font(.subheadline)
+                            Spacer()
+                            Button("Keep") {
+                                store.keepDuplicate(groupID: group.id, keepID: bookmark.id)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.green)
+                            .controlSize(.small)
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+
+                        Divider()
+                            .padding(.leading, 48)
+                    }
+                }
+            }
+        }
+        .frame(width: 560, height: 560)
     }
 }
