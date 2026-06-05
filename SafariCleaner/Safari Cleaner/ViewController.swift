@@ -24,11 +24,12 @@ struct DuplicateGroup: Identifiable {
 class BookmarkStore: ObservableObject {
     @Published var pending: [Bookmark] = []
     @Published var duplicateGroups: [DuplicateGroup] = []
-    @Published var showDuplicateReview = false
     @Published var isLoading = false
     @Published var loadError: String?
     @Published var keptCount = 0
     @Published var deletedCount = 0
+
+    private var duplicateWindow: NSWindow?
 
     private let bookmarksURL = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Safari/Bookmarks.plist")
@@ -109,6 +110,24 @@ class BookmarkStore: ObservableObject {
         }
     }
 
+    func openDuplicateReviewWindow() {
+        if let w = duplicateWindow, w.isVisible { w.makeKeyAndOrderFront(nil); return }
+        let controller = NSHostingController(rootView: DuplicatesWindowView(store: self))
+        let window = NSWindow(contentViewController: controller)
+        window.title = "Review Duplicates"
+        window.styleMask = [.titled, .closable, .resizable, .miniaturizable]
+        window.setContentSize(NSSize(width: 560, height: 580))
+        window.minSize = NSSize(width: 440, height: 420)
+        window.center()
+        window.makeKeyAndOrderFront(nil)
+        duplicateWindow = window
+    }
+
+    func closeDuplicateWindow() {
+        duplicateWindow?.close()
+        duplicateWindow = nil
+    }
+
     func keepDuplicate(groupID: String, keepID: String) {
         guard let groupIndex = duplicateGroups.firstIndex(where: { $0.id == groupID }) else { return }
         let group = duplicateGroups[groupIndex]
@@ -131,6 +150,30 @@ class BookmarkStore: ObservableObject {
         let deletedIDs = Set(toDelete.map { $0.id })
         pending.removeAll { deletedIDs.contains($0.id) }
         deletedCount += toDelete.count
+        duplicateGroups.remove(at: groupIndex)
+    }
+
+    func deleteAllInGroup(groupID: String) {
+        guard let groupIndex = duplicateGroups.firstIndex(where: { $0.id == groupID }) else { return }
+        let group = duplicateGroups[groupIndex]
+
+        guard let data = try? Data(contentsOf: bookmarksURL),
+              var root = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
+            duplicateGroups.remove(at: groupIndex)
+            return
+        }
+
+        for bookmark in group.bookmarks {
+            remove(id: bookmark.id, from: &root)
+        }
+
+        if let newData = try? PropertyListSerialization.data(fromPropertyList: root, format: .binary, options: 0) {
+            try? newData.write(to: bookmarksURL)
+        }
+
+        let deletedIDs = Set(group.bookmarks.map { $0.id })
+        pending.removeAll { deletedIDs.contains($0.id) }
+        deletedCount += group.bookmarks.count
         duplicateGroups.remove(at: groupIndex)
     }
 
@@ -223,9 +266,6 @@ struct BookmarkReviewView: View {
         }
         .frame(minWidth: 460, minHeight: 420)
         .onAppear { store.load() }
-        .sheet(isPresented: $store.showDuplicateReview) {
-            DuplicatesSheet(store: store)
-        }
     }
 
     func errorView(message: String) -> some View {
@@ -276,7 +316,7 @@ struct BookmarkReviewView: View {
                 Text("\(count) URL\(count == 1 ? "" : "s") saved in multiple locations")
                     .font(.subheadline)
                 Spacer()
-                Button("Review Duplicates") { store.showDuplicateReview = true }
+                Button("Review Duplicates") { store.openDuplicateReviewWindow() }
                     .controlSize(.small)
                     .buttonStyle(.bordered)
             }
@@ -370,9 +410,9 @@ struct BookmarkReviewView: View {
     }
 }
 
-// MARK: - Duplicates Sheet
+// MARK: - Duplicates Window
 
-struct DuplicatesSheet: View {
+struct DuplicatesWindowView: View {
     @ObservedObject var store: BookmarkStore
 
     var body: some View {
@@ -383,11 +423,11 @@ struct DuplicatesSheet: View {
                     .foregroundStyle(.green)
                 Text("All duplicates resolved!")
                     .font(.title2).bold()
-                Button("Done") { store.showDuplicateReview = false }
+                Button("Done") { store.closeDuplicateWindow() }
                     .buttonStyle(.borderedProminent)
             }
             .padding(40)
-            .frame(width: 560)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             DuplicateGroupView(store: store, group: store.duplicateGroups[0])
         }
@@ -397,6 +437,7 @@ struct DuplicatesSheet: View {
 struct DuplicateGroupView: View {
     @ObservedObject var store: BookmarkStore
     let group: DuplicateGroup
+    @State private var showDeleteAllConfirm = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -406,22 +447,14 @@ struct DuplicateGroupView: View {
                 Text("\(count) duplicate URL\(count == 1 ? "" : "s") to review")
                     .font(.headline)
                 Spacer()
-                Button("Close") { store.showDuplicateReview = false }
+                Button("Close") { store.closeDuplicateWindow() }
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 14)
 
             Divider()
 
-            // Live webpage
-            if let url = URL(string: group.url) {
-                WebView(url: url)
-                    .frame(height: 240)
-            }
-
-            Divider()
-
-            // URL info
+            // URL info + path list
             VStack(alignment: .leading, spacing: 3) {
                 Text(group.title)
                     .font(.headline)
@@ -433,7 +466,8 @@ struct DuplicateGroupView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
-            .padding(.vertical, 10)
+            .padding(.top, 12)
+            .padding(.bottom, 8)
 
             Divider()
 
@@ -468,9 +502,37 @@ struct DuplicateGroupView: View {
                         Divider()
                             .padding(.leading, 48)
                     }
+
+                    // Delete all option
+                    HStack {
+                        Spacer()
+                        Button("Delete All Copies") { showDeleteAllConfirm = true }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.red)
+                            .controlSize(.small)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
                 }
             }
+            .frame(maxHeight: 220)
+
+            Divider()
+
+            // Live webpage preview at the bottom
+            if let url = URL(string: group.url) {
+                WebView(url: url)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
-        .frame(width: 560, height: 560)
+        .frame(minWidth: 440, minHeight: 420)
+        .alert("Delete All Copies?", isPresented: $showDeleteAllConfirm) {
+            Button("Delete All", role: .destructive) {
+                store.deleteAllInGroup(groupID: group.id)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will remove all \(group.bookmarks.count) saved copies of this URL from your bookmarks.")
+        }
     }
 }
