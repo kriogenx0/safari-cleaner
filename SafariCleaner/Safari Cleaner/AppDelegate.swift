@@ -4,8 +4,8 @@ import SwiftUI
 struct SafariCleanerApp: App {
     var body: some Scene {
         WindowGroup {
-            BookmarkReviewView()
+            DuplicateReviewMainView()
         }
-        .defaultSize(width: 480, height: 500)
+        .defaultSize(width: 580, height: 680)
     }
 }
