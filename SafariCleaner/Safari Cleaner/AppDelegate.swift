@@ -4,7 +4,7 @@ import SwiftUI
 struct SafariCleanerApp: App {
     var body: some Scene {
         WindowGroup {
-            DuplicateReviewMainView()
+            MainView()
         }
         .defaultSize(width: 580, height: 680)
     }

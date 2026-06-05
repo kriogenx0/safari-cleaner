@@ -23,17 +23,28 @@ struct DuplicateGroup: Identifiable {
 @MainActor
 class BookmarkStore: ObservableObject {
     @Published var duplicateGroups: [DuplicateGroup] = []
+    @Published var pending: [Bookmark] = []
     @Published var isLoading = false
     @Published var loadError: String?
     @Published var resolvedCount = 0
+    @Published var keptCount = 0
+    @Published var deletedCount = 0
 
     private let bookmarksURL = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Safari/Bookmarks.plist")
+
+    private let keptKey = "com.safariCleaner.keptBookmarks"
+
+    private var keptIDs: Set<String> {
+        Set(UserDefaults.standard.stringArray(forKey: keptKey) ?? [])
+    }
 
     func load() {
         isLoading = true
         loadError = nil
         resolvedCount = 0
+        keptCount = 0
+        deletedCount = 0
 
         guard let data = try? Data(contentsOf: bookmarksURL) else {
             loadError = "Could not read Safari bookmarks.\n\nIf you're on macOS Ventura or later, grant Full Disk Access to this app in:\nSystem Settings → Privacy & Security → Full Disk Access"
@@ -50,6 +61,8 @@ class BookmarkStore: ObservableObject {
         var all: [Bookmark] = []
         collect(node: root, path: [], into: &all)
         duplicateGroups = computeDuplicateGroups(from: all)
+        let kept = keptIDs
+        pending = all.filter { !kept.contains($0.id) }
         isLoading = false
     }
 
@@ -97,6 +110,8 @@ class BookmarkStore: ObservableObject {
         }
     }
 
+    // MARK: Duplicate actions
+
     func keepDuplicate(groupID: String, keepID: String) {
         guard let groupIndex = duplicateGroups.firstIndex(where: { $0.id == groupID }) else { return }
         let group = duplicateGroups[groupIndex]
@@ -109,14 +124,14 @@ class BookmarkStore: ObservableObject {
             return
         }
 
-        for bookmark in toDelete {
-            remove(id: bookmark.id, from: &root)
-        }
+        for bookmark in toDelete { remove(id: bookmark.id, from: &root) }
 
         if let newData = try? PropertyListSerialization.data(fromPropertyList: root, format: .binary, options: 0) {
             try? newData.write(to: bookmarksURL)
         }
 
+        let deletedIDs = Set(toDelete.map { $0.id })
+        pending.removeAll { deletedIDs.contains($0.id) }
         duplicateGroups.remove(at: groupIndex)
         resolvedCount += 1
     }
@@ -132,16 +147,50 @@ class BookmarkStore: ObservableObject {
             return
         }
 
-        for bookmark in group.bookmarks {
-            remove(id: bookmark.id, from: &root)
-        }
+        for bookmark in group.bookmarks { remove(id: bookmark.id, from: &root) }
 
         if let newData = try? PropertyListSerialization.data(fromPropertyList: root, format: .binary, options: 0) {
             try? newData.write(to: bookmarksURL)
         }
 
+        let deletedIDs = Set(group.bookmarks.map { $0.id })
+        pending.removeAll { deletedIDs.contains($0.id) }
         duplicateGroups.remove(at: groupIndex)
         resolvedCount += 1
+    }
+
+    // MARK: Review All actions
+
+    func keep() {
+        guard !pending.isEmpty else { return }
+        let id = pending.removeFirst().id
+        var ids = UserDefaults.standard.stringArray(forKey: keptKey) ?? []
+        ids.append(id)
+        UserDefaults.standard.set(ids, forKey: keptKey)
+        keptCount += 1
+    }
+
+    func delete() {
+        guard !pending.isEmpty else { return }
+        let bookmark = pending.removeFirst()
+
+        guard let data = try? Data(contentsOf: bookmarksURL),
+              var root = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
+            deletedCount += 1
+            return
+        }
+
+        remove(id: bookmark.id, from: &root)
+
+        if let newData = try? PropertyListSerialization.data(fromPropertyList: root, format: .binary, options: 0) {
+            try? newData.write(to: bookmarksURL)
+        }
+        deletedCount += 1
+    }
+
+    func clearKeptAndReload() {
+        UserDefaults.standard.removeObject(forKey: keptKey)
+        load()
     }
 
     private func remove(id: String, from node: inout [String: Any]) {
@@ -172,8 +221,11 @@ struct WebView: NSViewRepresentable {
 
 // MARK: - Main View
 
-struct DuplicateReviewMainView: View {
+enum ReviewTab { case duplicates, reviewAll }
+
+struct MainView: View {
     @StateObject private var store = BookmarkStore()
+    @State private var selectedTab: ReviewTab = .duplicates
 
     var body: some View {
         Group {
@@ -182,10 +234,33 @@ struct DuplicateReviewMainView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if let err = store.loadError {
                 errorView(message: err)
-            } else if store.duplicateGroups.isEmpty {
-                doneView
             } else {
-                DuplicateGroupView(store: store, group: store.duplicateGroups[0])
+                VStack(spacing: 0) {
+                    Picker("", selection: $selectedTab) {
+                        Text("Review Duplicates").tag(ReviewTab.duplicates)
+                        Text("Review All").tag(ReviewTab.reviewAll)
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+
+                    Divider()
+
+                    switch selectedTab {
+                    case .duplicates:
+                        if store.duplicateGroups.isEmpty {
+                            duplicatesDoneView
+                        } else {
+                            DuplicateGroupView(store: store, group: store.duplicateGroups[0])
+                        }
+                    case .reviewAll:
+                        if store.pending.isEmpty {
+                            reviewAllDoneView
+                        } else {
+                            ReviewAllView(store: store)
+                        }
+                    }
+                }
             }
         }
         .frame(minWidth: 500, minHeight: 460)
@@ -207,7 +282,7 @@ struct DuplicateReviewMainView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    var doneView: some View {
+    var duplicatesDoneView: some View {
         VStack(spacing: 20) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 64))
@@ -223,8 +298,28 @@ struct DuplicateReviewMainView: View {
                 Text("Your bookmarks are clean.")
                     .foregroundStyle(.secondary)
             }
+            Button("Scan Again") { store.load() }
+        }
+        .padding(32)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    var reviewAllDoneView: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 64))
+                .foregroundStyle(.green)
+            Text("All done!")
+                .font(.largeTitle).bold()
+            if store.keptCount + store.deletedCount > 0 {
+                Text("Kept \(store.keptCount) · Deleted \(store.deletedCount) this session.")
+                    .foregroundStyle(.secondary)
+            } else {
+                Text("No bookmarks left to review.")
+                    .foregroundStyle(.secondary)
+            }
             HStack(spacing: 12) {
-                Button("Scan Again") { store.load() }
+                Button("Review All Again") { store.clearKeptAndReload() }
                 Button("Done") { NSApp.terminate(nil) }
                     .buttonStyle(.borderedProminent)
             }
@@ -340,6 +435,100 @@ struct DuplicateGroupView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This will remove all \(group.bookmarks.count) saved copies of this URL from your bookmarks.")
+        }
+    }
+}
+
+// MARK: - Review All View
+
+struct ReviewAllView: View {
+    @ObservedObject var store: BookmarkStore
+    @State private var refreshToken = UUID()
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Progress
+            VStack(spacing: 6) {
+                let reviewed = store.keptCount + store.deletedCount
+                let total = reviewed + store.pending.count
+                ProgressView(value: Double(reviewed), total: Double(total))
+                HStack {
+                    Text("\(store.pending.count) remaining")
+                    Spacer()
+                    Text("\(reviewed) reviewed")
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 14)
+            .padding(.bottom, 12)
+
+            Divider()
+
+            if let bookmark = store.pending.first {
+                // Bookmark info
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(bookmark.title)
+                        .font(.headline)
+                        .lineLimit(2)
+                    Text(bookmark.url)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 12)
+                .padding(.bottom, 8)
+
+                Divider()
+
+                // Live webpage preview
+                if let url = URL(string: bookmark.url) {
+                    WebView(url: url)
+                        .id("\(bookmark.id)-\(refreshToken)")
+                        .overlay(alignment: .topTrailing) {
+                            Button(action: { refreshToken = UUID() }) {
+                                Image(systemName: "arrow.clockwise")
+                                    .padding(6)
+                            }
+                            .buttonStyle(.plain)
+                            .background(.regularMaterial, in: Circle())
+                            .padding(8)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+
+                Divider()
+
+                // Actions
+                HStack(spacing: 16) {
+                    Button(action: { store.delete() }) {
+                        Label("Delete", systemImage: "trash")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .controlSize(.large)
+                    .buttonStyle(.borderedProminent)
+                    .tint(.red)
+                    .keyboardShortcut(.leftArrow, modifiers: [])
+
+                    Button(action: { store.keep() }) {
+                        Label("Keep", systemImage: "checkmark")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .controlSize(.large)
+                    .buttonStyle(.borderedProminent)
+                    .tint(.green)
+                    .keyboardShortcut(.rightArrow, modifiers: [])
+                }
+                .padding(20)
+
+                Text("← Delete    Keep →")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                    .padding(.bottom, 8)
+            }
         }
     }
 }
