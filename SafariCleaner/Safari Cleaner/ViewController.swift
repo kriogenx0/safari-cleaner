@@ -209,14 +209,35 @@ class BookmarkStore: ObservableObject {
 
 struct WebView: NSViewRepresentable {
     let url: URL
+    @Binding var loadingProgress: Double
+
+    class Coordinator: NSObject {
+        var loadedURL: String = ""
+        var observation: NSKeyValueObservation?
+        var progressBinding: Binding<Double>?
+        deinit { observation?.invalidate() }
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
 
     func makeNSView(context: Context) -> WKWebView {
         let view = WKWebView()
+        context.coordinator.progressBinding = $loadingProgress
+        context.coordinator.observation = view.observe(\.estimatedProgress, options: [.new]) { [weak c = context.coordinator] wv, _ in
+            let p = wv.estimatedProgress
+            DispatchQueue.main.async { c?.progressBinding?.wrappedValue = p }
+        }
         view.load(URLRequest(url: url))
+        context.coordinator.loadedURL = url.absoluteString
         return view
     }
 
-    func updateNSView(_ view: WKWebView, context: Context) {}
+    func updateNSView(_ view: WKWebView, context: Context) {
+        context.coordinator.progressBinding = $loadingProgress
+        guard context.coordinator.loadedURL != url.absoluteString else { return }
+        view.load(URLRequest(url: url))
+        context.coordinator.loadedURL = url.absoluteString
+    }
 }
 
 // MARK: - Main View
@@ -334,8 +355,8 @@ struct MainView: View {
 struct DuplicateGroupView: View {
     @ObservedObject var store: BookmarkStore
     let group: DuplicateGroup
-    @State private var showDeleteAllConfirm = false
     @State private var refreshToken = UUID()
+    @State private var loadingProgress: Double = 0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -400,41 +421,48 @@ struct DuplicateGroupView: View {
                 }
 
                 HStack {
-                    Spacer()
-                    Button("Delete All Copies") { showDeleteAllConfirm = true }
+                    Button(action: { refreshToken = UUID() }) {
+                        Image(systemName: "arrow.clockwise")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    Text(group.url)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                        .frame(maxWidth: .infinity)
+                    if let url = URL(string: group.url) {
+                        Button(action: { NSWorkspace.shared.open(url) }) {
+                            Image(systemName: "safari")
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    }
+                    Button("Delete All Copies") { store.deleteAllInGroup(groupID: group.id) }
                         .buttonStyle(.borderedProminent)
                         .tint(.red)
                         .controlSize(.small)
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
+                .overlay(alignment: .bottom) {
+                    ProgressView(value: loadingProgress, total: 1.0)
+                        .progressViewStyle(.linear)
+                        .frame(height: 2)
+                        .opacity(loadingProgress > 0 && loadingProgress < 1 ? 1 : 0)
+                        .animation(.linear(duration: 0.1), value: loadingProgress)
+                }
             }
 
             Divider()
 
             // Live webpage preview
             if let url = URL(string: group.url) {
-                WebView(url: url)
+                WebView(url: url, loadingProgress: $loadingProgress)
                     .id("\(group.url)-\(refreshToken)")
-                    .overlay(alignment: .topTrailing) {
-                        Button(action: { refreshToken = UUID() }) {
-                            Image(systemName: "arrow.clockwise")
-                                .padding(6)
-                        }
-                        .buttonStyle(.plain)
-                        .background(.regularMaterial, in: Circle())
-                        .padding(8)
-                    }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-        }
-        .alert("Delete All Copies?", isPresented: $showDeleteAllConfirm) {
-            Button("Delete All", role: .destructive) {
-                store.deleteAllInGroup(groupID: group.id)
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("This will remove all \(group.bookmarks.count) saved copies of this URL from your bookmarks.")
         }
     }
 }
@@ -444,6 +472,7 @@ struct DuplicateGroupView: View {
 struct ReviewAllView: View {
     @ObservedObject var store: BookmarkStore
     @State private var refreshToken = UUID()
+    @State private var loadingProgress: Double = 0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -484,19 +513,40 @@ struct ReviewAllView: View {
 
                 Divider()
 
-                // Live webpage preview
+                // Preview toolbar
                 if let url = URL(string: bookmark.url) {
-                    WebView(url: url)
-                        .id("\(bookmark.id)-\(refreshToken)")
-                        .overlay(alignment: .topTrailing) {
-                            Button(action: { refreshToken = UUID() }) {
-                                Image(systemName: "arrow.clockwise")
-                                    .padding(6)
-                            }
-                            .buttonStyle(.plain)
-                            .background(.regularMaterial, in: Circle())
-                            .padding(8)
+                    HStack {
+                        Button(action: { refreshToken = UUID() }) {
+                            Image(systemName: "arrow.clockwise")
                         }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                        Text(bookmark.url)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                            .frame(maxWidth: .infinity)
+                        Button(action: { NSWorkspace.shared.open(url) }) {
+                            Image(systemName: "safari")
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 8)
+                    .overlay(alignment: .bottom) {
+                        ProgressView(value: loadingProgress, total: 1.0)
+                            .progressViewStyle(.linear)
+                            .frame(height: 2)
+                            .opacity(loadingProgress > 0 && loadingProgress < 1 ? 1 : 0)
+                            .animation(.linear(duration: 0.1), value: loadingProgress)
+                    }
+
+                    Divider()
+
+                    WebView(url: url, loadingProgress: $loadingProgress)
+                        .id("\(bookmark.id)-\(refreshToken)")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
 
