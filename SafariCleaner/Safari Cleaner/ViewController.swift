@@ -240,6 +240,7 @@ struct DuplicateGroupView: View {
     @ObservedObject var store: BookmarkStore
     let group: DuplicateGroup
     @State private var showDeleteAllConfirm = false
+    @State private var refreshToken = UUID()
 
     var body: some View {
         VStack(spacing: 0) {
@@ -319,7 +320,16 @@ struct DuplicateGroupView: View {
             // Live webpage preview
             if let url = URL(string: group.url) {
                 WebView(url: url)
-                    .id(group.url)
+                    .id("\(group.url)-\(refreshToken)")
+                    .overlay(alignment: .topTrailing) {
+                        Button(action: { refreshToken = UUID() }) {
+                            Image(systemName: "arrow.clockwise")
+                                .padding(6)
+                        }
+                        .buttonStyle(.plain)
+                        .background(.regularMaterial, in: Circle())
+                        .padding(8)
+                    }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
