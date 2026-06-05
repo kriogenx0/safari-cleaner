@@ -112,6 +112,12 @@ class BookmarkStore: ObservableObject {
 
     // MARK: Duplicate actions
 
+    func skipGroup(groupID: String) {
+        guard let index = duplicateGroups.firstIndex(where: { $0.id == groupID }) else { return }
+        let group = duplicateGroups.remove(at: index)
+        duplicateGroups.append(group)
+    }
+
     func keepDuplicate(groupID: String, keepID: String) {
         guard let groupIndex = duplicateGroups.firstIndex(where: { $0.id == groupID }) else { return }
         let group = duplicateGroups[groupIndex]
@@ -211,17 +217,37 @@ struct WebView: NSViewRepresentable {
     let url: URL
     @Binding var loadingProgress: Double
 
-    class Coordinator: NSObject {
+    class Coordinator: NSObject, WKNavigationDelegate {
         var loadedURL: String = ""
         var observation: NSKeyValueObservation?
         var progressBinding: Binding<Double>?
         deinit { observation?.invalidate() }
+
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation _: WKNavigation!, withError error: Error) {
+            showError(in: webView, error: error)
+        }
+
+        func webView(_ webView: WKWebView, didFail _: WKNavigation!, withError error: Error) {
+            showError(in: webView, error: error)
+        }
+
+        private func showError(in webView: WKWebView, error: Error) {
+            progressBinding?.wrappedValue = 0
+            let msg = error.localizedDescription
+            let html = "<html><body style=\"font-family:-apple-system,sans-serif;"
+                + "text-align:center;padding-top:80px;color:#666;background:#f5f5f5\">"
+                + "<h2 style=\"color:#333\">Page couldn't be loaded</h2>"
+                + "<p>" + msg + "</p></body></html>"
+            webView.loadHTMLString(html, baseURL: nil)
+        }
     }
 
     func makeCoordinator() -> Coordinator { Coordinator() }
 
     func makeNSView(context: Context) -> WKWebView {
         let view = WKWebView()
+        view.customUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15"
+        view.navigationDelegate = context.coordinator
         context.coordinator.progressBinding = $loadingProgress
         context.coordinator.observation = view.observe(\.estimatedProgress, options: [.new]) { [weak c = context.coordinator] wv, _ in
             let p = wv.estimatedProgress
@@ -366,6 +392,9 @@ struct DuplicateGroupView: View {
                 Text("\(count) duplicate URL\(count == 1 ? "" : "s") to review")
                     .font(.headline)
                 Spacer()
+                Button("Skip") { store.skipGroup(groupID: group.id) }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 14)
