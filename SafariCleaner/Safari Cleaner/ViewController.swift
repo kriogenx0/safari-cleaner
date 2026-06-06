@@ -268,6 +268,19 @@ struct WebView: NSViewRepresentable {
         weak var state: WebViewState?
         deinit { observation?.invalidate() }
 
+        func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+            guard let url = action.request.url, let scheme = url.scheme else {
+                decisionHandler(.allow)
+                return
+            }
+            if ["http", "https", "about", "data", "blob"].contains(scheme.lowercased()) {
+                decisionHandler(.allow)
+            } else {
+                NSWorkspace.shared.open(url)
+                decisionHandler(.cancel)
+            }
+        }
+
         func webView(_ webView: WKWebView, didFailProvisionalNavigation _: WKNavigation!, withError error: Error) {
             state?.progress = 0
             let msg = error.localizedDescription
