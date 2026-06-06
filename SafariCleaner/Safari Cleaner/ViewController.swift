@@ -146,8 +146,10 @@ class BookmarkStore: ObservableObject {
             try? newData.write(to: bookmarksURL)
         }
 
+        let previousResolved = resolvedCount + toDeleteIDs.count
         showSamePathPrompt = false
         load()
+        resolvedCount = previousResolved
     }
 
     func skipGroup(groupID: String) {
@@ -448,9 +450,9 @@ struct DuplicateGroupView: View {
                 let total = store.resolvedCount + store.duplicateGroups.count
                 ProgressView(value: Double(store.resolvedCount), total: Double(max(total, 1)))
                 HStack {
-                    Text("\(store.duplicateGroups.count) remaining")
-                    Spacer()
                     Text("\(store.resolvedCount) reviewed")
+                    Spacer()
+                    Text("\(store.duplicateGroups.count) remaining")
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -580,9 +582,9 @@ struct ReviewAllView: View {
                 let total = reviewed + store.pending.count
                 ProgressView(value: Double(reviewed), total: Double(total))
                 HStack {
-                    Text("\(store.pending.count) remaining")
-                    Spacer()
                     Text("\(reviewed) reviewed")
+                    Spacer()
+                    Text("\(store.pending.count) remaining")
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
