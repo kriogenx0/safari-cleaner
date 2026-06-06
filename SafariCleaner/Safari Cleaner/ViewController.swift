@@ -29,6 +29,8 @@ class BookmarkStore: ObservableObject {
     @Published var resolvedCount = 0
     @Published var keptCount = 0
     @Published var deletedCount = 0
+    @Published var showSamePathPrompt = false
+    @Published var samePathDuplicateCount = 0
 
     private let bookmarksURL = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Safari/Bookmarks.plist")
@@ -61,6 +63,15 @@ class BookmarkStore: ObservableObject {
         var all: [Bookmark] = []
         collect(node: root, path: [], into: &all)
         duplicateGroups = computeDuplicateGroups(from: all)
+
+        // Find groups where every copy shares the same path — no decision needed
+        let samePathGroups = duplicateGroups.filter { group in
+            let paths = group.bookmarks.map { $0.path.joined(separator: "/") }
+            return Set(paths).count == 1
+        }
+        samePathDuplicateCount = samePathGroups.reduce(0) { $0 + $1.bookmarks.count - 1 }
+        if samePathDuplicateCount > 0 { showSamePathPrompt = true }
+
         let kept = keptIDs
         pending = all.filter { !kept.contains($0.id) }
         isLoading = false
@@ -111,6 +122,33 @@ class BookmarkStore: ObservableObject {
     }
 
     // MARK: Duplicate actions
+
+    func deduceSamePath() {
+        guard let data = try? Data(contentsOf: bookmarksURL),
+              var root = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
+            showSamePathPrompt = false
+            return
+        }
+
+        let samePathGroups = duplicateGroups.filter { group in
+            let paths = group.bookmarks.map { $0.path.joined(separator: "/") }
+            return Set(paths).count == 1
+        }
+
+        var toDeleteIDs: [String] = []
+        for group in samePathGroups {
+            toDeleteIDs.append(contentsOf: group.bookmarks.dropFirst().map { $0.id })
+        }
+
+        for id in toDeleteIDs { remove(id: id, from: &root) }
+
+        if let newData = try? PropertyListSerialization.data(fromPropertyList: root, format: .binary, options: 0) {
+            try? newData.write(to: bookmarksURL)
+        }
+
+        showSamePathPrompt = false
+        load()
+    }
 
     func skipGroup(groupID: String) {
         guard let index = duplicateGroups.firstIndex(where: { $0.id == groupID }) else { return }
@@ -273,6 +311,7 @@ struct WebView: NSViewRepresentable {
     func updateNSView(_ view: WKWebView, context: Context) {
         context.coordinator.state = state
         guard context.coordinator.loadedURL != url.absoluteString else { return }
+        view.evaluateJavaScript("document.querySelectorAll('video,audio').forEach(m => m.pause())")
         view.load(URLRequest(url: url))
         context.coordinator.loadedURL = url.absoluteString
     }
@@ -324,6 +363,12 @@ struct MainView: View {
         }
         .frame(minWidth: 500, minHeight: 460)
         .onAppear { store.load() }
+        .alert("Remove Exact Duplicates?", isPresented: $store.showSamePathPrompt) {
+            Button("Remove \(store.samePathDuplicateCount)", role: .destructive) { store.deduceSamePath() }
+            Button("Skip", role: .cancel) { store.showSamePathPrompt = false }
+        } message: {
+            Text("Found \(store.samePathDuplicateCount) bookmark\(store.samePathDuplicateCount == 1 ? "" : "s") that are exact copies saved in the same folder. Remove the extras and keep one of each?")
+        }
     }
 
     func errorView(message: String) -> some View {
@@ -398,15 +443,21 @@ struct DuplicateGroupView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Header
-            HStack {
-                let count = store.duplicateGroups.count
-                Text("\(count) duplicate URL\(count == 1 ? "" : "s") to review")
-                    .font(.headline)
+            // Progress header — mirrors Review All
+            VStack(spacing: 6) {
+                let total = store.resolvedCount + store.duplicateGroups.count
+                ProgressView(value: Double(store.resolvedCount), total: Double(max(total, 1)))
+                HStack {
+                    Text("\(store.duplicateGroups.count) remaining")
+                    Spacer()
+                    Text("\(store.resolvedCount) reviewed")
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
-            .padding(.vertical, 14)
+            .padding(.top, 14)
+            .padding(.bottom, 12)
 
             Divider()
 
@@ -484,7 +535,7 @@ struct DuplicateGroupView: View {
                     .truncationMode(.middle)
                     .frame(maxWidth: .infinity)
                 if let u = URL(string: group.url) {
-                    Button(action: { NSWorkspace.shared.open(u) }) {
+                    Button(action: { NSWorkspace.shared.open(u, configuration: NSWorkspace.OpenConfiguration()) }) {
                         Image(systemName: "safari")
                     }
                     .buttonStyle(.bordered)
@@ -574,7 +625,7 @@ struct ReviewAllView: View {
                             .lineLimit(1)
                             .truncationMode(.middle)
                             .frame(maxWidth: .infinity)
-                        Button(action: { NSWorkspace.shared.open(url) }) {
+                        Button(action: { NSWorkspace.shared.open(url, configuration: NSWorkspace.OpenConfiguration()) }) {
                             Image(systemName: "safari")
                         }
                         .buttonStyle(.bordered)
