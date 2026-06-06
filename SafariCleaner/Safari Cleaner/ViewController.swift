@@ -64,17 +64,8 @@ class BookmarkStore: ObservableObject {
         collect(node: root, path: [], into: &all)
         duplicateGroups = computeDuplicateGroups(from: all)
 
-        // Within each group, count bookmarks that share a path with an earlier copy
-        var samePathCount = 0
-        for group in duplicateGroups {
-            var seen = Set<String>()
-            for b in group.bookmarks {
-                let key = normalizedURL(b.url) + "|" + b.path.joined(separator: "/")
-                if seen.contains(key) { samePathCount += 1 } else { seen.insert(key) }
-            }
-        }
-        samePathDuplicateCount = samePathCount
-        if samePathDuplicateCount > 0 { showSamePathPrompt = true }
+        // Count same-path duplicates for the toolbar button
+        samePathDuplicateCount = samePathDuplicateIDs().count
 
         let kept = keptIDs
         pending = all.filter { !kept.contains($0.id) }
@@ -135,18 +126,7 @@ class BookmarkStore: ObservableObject {
         }
 
         // Within each group, delete any bookmark whose (url, path) combo was already seen
-        var toDeleteIDs: [String] = []
-        for group in duplicateGroups {
-            var seen = Set<String>()
-            for b in group.bookmarks {
-                let key = normalizedURL(b.url) + "|" + b.path.joined(separator: "/")
-                if seen.contains(key) {
-                    toDeleteIDs.append(b.id)
-                } else {
-                    seen.insert(key)
-                }
-            }
-        }
+        let toDeleteIDs = samePathDuplicateIDs()
 
         for id in toDeleteIDs { remove(id: id, from: &root) }
 
@@ -158,6 +138,18 @@ class BookmarkStore: ObservableObject {
         showSamePathPrompt = false
         load()
         resolvedCount = previousResolved
+    }
+
+    private func samePathDuplicateIDs() -> [String] {
+        var toDelete: [String] = []
+        for group in duplicateGroups {
+            var seen = Set<String>()
+            for b in group.bookmarks {
+                let key = b.url + "|" + b.path.joined(separator: "/")
+                if seen.contains(key) { toDelete.append(b.id) } else { seen.insert(key) }
+            }
+        }
+        return toDelete
     }
 
     func skipGroup(groupID: String) {
@@ -357,11 +349,20 @@ struct MainView: View {
                 errorView(message: err)
             } else {
                 VStack(spacing: 0) {
-                    Picker("", selection: $selectedTab) {
-                        Text("Review Duplicates").tag(ReviewTab.duplicates)
-                        Text("Review All").tag(ReviewTab.reviewAll)
+                    HStack(spacing: 12) {
+                        Picker("", selection: $selectedTab) {
+                            Text("Review Duplicates").tag(ReviewTab.duplicates)
+                            Text("Review All").tag(ReviewTab.reviewAll)
+                        }
+                        .pickerStyle(.segmented)
+                        if store.samePathDuplicateCount > 0 {
+                            Button("Remove \(store.samePathDuplicateCount) Same-Path") {
+                                store.showSamePathPrompt = true
+                            }
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
+                        }
                     }
-                    .pickerStyle(.segmented)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
 
