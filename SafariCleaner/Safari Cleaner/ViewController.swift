@@ -213,26 +213,33 @@ class BookmarkStore: ObservableObject {
 
 // MARK: - WebView
 
+final class WebViewState: ObservableObject {
+    @Published var progress: Double = 0
+    @Published var currentURL: String = ""
+}
+
 struct WebView: NSViewRepresentable {
     let url: URL
-    @Binding var loadingProgress: Double
+    let state: WebViewState
 
     class Coordinator: NSObject, WKNavigationDelegate {
         var loadedURL: String = ""
         var observation: NSKeyValueObservation?
-        var progressBinding: Binding<Double>?
+        weak var state: WebViewState?
         deinit { observation?.invalidate() }
 
         func webView(_ webView: WKWebView, didFailProvisionalNavigation _: WKNavigation!, withError error: Error) {
-            showError(in: webView, error: error)
+            state?.progress = 0
+            let msg = error.localizedDescription
+            let html = "<html><body style=\"font-family:-apple-system,sans-serif;"
+                + "text-align:center;padding-top:80px;color:#666;background:#f5f5f5\">"
+                + "<h2 style=\"color:#333\">Page couldn't be loaded</h2>"
+                + "<p>" + msg + "</p></body></html>"
+            webView.loadHTMLString(html, baseURL: nil)
         }
 
         func webView(_ webView: WKWebView, didFail _: WKNavigation!, withError error: Error) {
-            showError(in: webView, error: error)
-        }
-
-        private func showError(in webView: WKWebView, error: Error) {
-            progressBinding?.wrappedValue = 0
+            state?.progress = 0
             let msg = error.localizedDescription
             let html = "<html><body style=\"font-family:-apple-system,sans-serif;"
                 + "text-align:center;padding-top:80px;color:#666;background:#f5f5f5\">"
@@ -248,10 +255,15 @@ struct WebView: NSViewRepresentable {
         let view = WKWebView()
         view.customUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15"
         view.navigationDelegate = context.coordinator
-        context.coordinator.progressBinding = $loadingProgress
-        context.coordinator.observation = view.observe(\.estimatedProgress, options: [.new]) { [weak c = context.coordinator] wv, _ in
+        context.coordinator.state = state
+        let c = context.coordinator
+        context.coordinator.observation = view.observe(\.estimatedProgress, options: [.new]) { [weak c] wv, _ in
             let p = wv.estimatedProgress
-            DispatchQueue.main.async { c?.progressBinding?.wrappedValue = p }
+            let u = wv.url?.absoluteString ?? ""
+            DispatchQueue.main.async {
+                c?.state?.progress = p
+                if !u.isEmpty { c?.state?.currentURL = u }
+            }
         }
         view.load(URLRequest(url: url))
         context.coordinator.loadedURL = url.absoluteString
@@ -259,7 +271,7 @@ struct WebView: NSViewRepresentable {
     }
 
     func updateNSView(_ view: WKWebView, context: Context) {
-        context.coordinator.progressBinding = $loadingProgress
+        context.coordinator.state = state
         guard context.coordinator.loadedURL != url.absoluteString else { return }
         view.load(URLRequest(url: url))
         context.coordinator.loadedURL = url.absoluteString
@@ -381,8 +393,8 @@ struct MainView: View {
 struct DuplicateGroupView: View {
     @ObservedObject var store: BookmarkStore
     let group: DuplicateGroup
+    @StateObject private var webState = WebViewState()
     @State private var refreshToken = UUID()
-    @State private var loadingProgress: Double = 0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -391,30 +403,36 @@ struct DuplicateGroupView: View {
                 let count = store.duplicateGroups.count
                 Text("\(count) duplicate URL\(count == 1 ? "" : "s") to review")
                     .font(.headline)
-                Spacer()
-                Button("Skip") { store.skipGroup(groupID: group.id) }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
             .padding(.vertical, 14)
 
             Divider()
 
-            // URL info
-            VStack(alignment: .leading, spacing: 3) {
-                Text(group.title)
-                    .font(.headline)
-                    .lineLimit(2)
-                Text(group.url)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+            // Title + URL + actions
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(group.title)
+                        .font(.headline)
+                        .lineLimit(2)
+                    Text(group.url)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                Button("Skip") { store.skipGroup(groupID: group.id) }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                Button("Delete All Copies") { store.deleteAllInGroup(groupID: group.id) }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.red)
+                    .controlSize(.small)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
             .padding(.top, 12)
-            .padding(.bottom, 8)
+            .padding(.bottom, 10)
 
             Divider()
 
@@ -444,51 +462,51 @@ struct DuplicateGroupView: View {
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
-
                     Divider()
                         .padding(.leading, 48)
-                }
-
-                HStack {
-                    Button(action: { refreshToken = UUID() }) {
-                        Image(systemName: "arrow.clockwise")
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                    Text(group.url)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-                        .frame(maxWidth: .infinity)
-                    if let url = URL(string: group.url) {
-                        Button(action: { NSWorkspace.shared.open(url) }) {
-                            Image(systemName: "safari")
-                        }
-                        .buttonStyle(.bordered)
-                        .controlSize(.small)
-                    }
-                    Button("Delete All Copies") { store.deleteAllInGroup(groupID: group.id) }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.red)
-                        .controlSize(.small)
-                }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 10)
-                .overlay(alignment: .bottom) {
-                    ProgressView(value: loadingProgress, total: 1.0)
-                        .progressViewStyle(.linear)
-                        .frame(height: 2)
-                        .opacity(loadingProgress > 0 && loadingProgress < 1 ? 1 : 0)
-                        .animation(.linear(duration: 0.1), value: loadingProgress)
                 }
             }
 
             Divider()
 
-            // Live webpage preview
+            // Preview toolbar — shows live URL after redirects
+            HStack {
+                Button(action: { refreshToken = UUID() }) {
+                    Image(systemName: "arrow.clockwise")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                let displayURL = webState.currentURL.isEmpty ? group.url : webState.currentURL
+                Text(displayURL)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .frame(maxWidth: .infinity)
+                if let u = URL(string: group.url) {
+                    Button(action: { NSWorkspace.shared.open(u) }) {
+                        Image(systemName: "safari")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 8)
+            .overlay(alignment: .bottom) {
+                GeometryReader { geo in
+                    Rectangle()
+                        .fill(Color.accentColor)
+                        .frame(width: geo.size.width * webState.progress, height: 2)
+                        .opacity(webState.progress > 0 && webState.progress < 1 ? 1 : 0)
+                }
+                .frame(height: 2)
+            }
+
+            Divider()
+
             if let url = URL(string: group.url) {
-                WebView(url: url, loadingProgress: $loadingProgress)
+                WebView(url: url, state: webState)
                     .id("\(group.url)-\(refreshToken)")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
@@ -500,8 +518,8 @@ struct DuplicateGroupView: View {
 
 struct ReviewAllView: View {
     @ObservedObject var store: BookmarkStore
+    @StateObject private var webState = WebViewState()
     @State private var refreshToken = UUID()
-    @State private var loadingProgress: Double = 0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -525,7 +543,6 @@ struct ReviewAllView: View {
             Divider()
 
             if let bookmark = store.pending.first {
-                // Bookmark info
                 VStack(alignment: .leading, spacing: 3) {
                     Text(bookmark.title)
                         .font(.headline)
@@ -542,15 +559,16 @@ struct ReviewAllView: View {
 
                 Divider()
 
-                // Preview toolbar
                 if let url = URL(string: bookmark.url) {
+                    // Preview toolbar
                     HStack {
                         Button(action: { refreshToken = UUID() }) {
                             Image(systemName: "arrow.clockwise")
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)
-                        Text(bookmark.url)
+                        let displayURL = webState.currentURL.isEmpty ? bookmark.url : webState.currentURL
+                        Text(displayURL)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
@@ -565,23 +583,24 @@ struct ReviewAllView: View {
                     .padding(.horizontal, 20)
                     .padding(.vertical, 8)
                     .overlay(alignment: .bottom) {
-                        ProgressView(value: loadingProgress, total: 1.0)
-                            .progressViewStyle(.linear)
-                            .frame(height: 2)
-                            .opacity(loadingProgress > 0 && loadingProgress < 1 ? 1 : 0)
-                            .animation(.linear(duration: 0.1), value: loadingProgress)
+                        GeometryReader { geo in
+                            Rectangle()
+                                .fill(Color.accentColor)
+                                .frame(width: geo.size.width * webState.progress, height: 2)
+                                .opacity(webState.progress > 0 && webState.progress < 1 ? 1 : 0)
+                        }
+                        .frame(height: 2)
                     }
 
                     Divider()
 
-                    WebView(url: url, loadingProgress: $loadingProgress)
+                    WebView(url: url, state: webState)
                         .id("\(bookmark.id)-\(refreshToken)")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
 
                 Divider()
 
-                // Actions
                 HStack(spacing: 16) {
                     Button(action: { store.delete() }) {
                         Label("Delete", systemImage: "trash")
