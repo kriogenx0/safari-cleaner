@@ -269,14 +269,15 @@ struct WebView: NSViewRepresentable {
         deinit { observation?.invalidate() }
 
         func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-            guard let url = action.request.url, let scheme = url.scheme else {
+            guard let url = action.request.url, let scheme = url.scheme?.lowercased() else {
                 decisionHandler(.allow)
                 return
             }
-            if ["http", "https", "about", "data", "blob"].contains(scheme.lowercased()) {
+            switch scheme {
+            case "http", "https", "about", "data", "blob", "javascript":
                 decisionHandler(.allow)
-            } else {
-                NSWorkspace.shared.open(url)
+            default:
+                NSWorkspace.shared.open(url, configuration: NSWorkspace.OpenConfiguration())
                 decisionHandler(.cancel)
             }
         }
