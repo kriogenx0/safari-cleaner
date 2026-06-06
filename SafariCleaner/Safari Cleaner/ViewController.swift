@@ -64,12 +64,16 @@ class BookmarkStore: ObservableObject {
         collect(node: root, path: [], into: &all)
         duplicateGroups = computeDuplicateGroups(from: all)
 
-        // Find groups where every copy shares the same path — no decision needed
-        let samePathGroups = duplicateGroups.filter { group in
-            let paths = group.bookmarks.map { $0.path.joined(separator: "/") }
-            return Set(paths).count == 1
+        // Within each group, count bookmarks that share a path with an earlier copy
+        var samePathCount = 0
+        for group in duplicateGroups {
+            var seen = Set<String>()
+            for b in group.bookmarks {
+                let key = normalizedURL(b.url) + "|" + b.path.joined(separator: "/")
+                if seen.contains(key) { samePathCount += 1 } else { seen.insert(key) }
+            }
         }
-        samePathDuplicateCount = samePathGroups.reduce(0) { $0 + $1.bookmarks.count - 1 }
+        samePathDuplicateCount = samePathCount
         if samePathDuplicateCount > 0 { showSamePathPrompt = true }
 
         let kept = keptIDs
@@ -130,14 +134,18 @@ class BookmarkStore: ObservableObject {
             return
         }
 
-        let samePathGroups = duplicateGroups.filter { group in
-            let paths = group.bookmarks.map { $0.path.joined(separator: "/") }
-            return Set(paths).count == 1
-        }
-
+        // Within each group, delete any bookmark whose (url, path) combo was already seen
         var toDeleteIDs: [String] = []
-        for group in samePathGroups {
-            toDeleteIDs.append(contentsOf: group.bookmarks.dropFirst().map { $0.id })
+        for group in duplicateGroups {
+            var seen = Set<String>()
+            for b in group.bookmarks {
+                let key = normalizedURL(b.url) + "|" + b.path.joined(separator: "/")
+                if seen.contains(key) {
+                    toDeleteIDs.append(b.id)
+                } else {
+                    seen.insert(key)
+                }
+            }
         }
 
         for id in toDeleteIDs { remove(id: id, from: &root) }
