@@ -31,6 +31,24 @@ class BookmarkStore: ObservableObject {
     @Published var deletedCount = 0
     @Published var showSamePathPrompt = false
     @Published var samePathDuplicateCount = 0
+    @Published var canUndoDuplicates = false
+    @Published var canUndoReviewAll = false
+
+    private struct DuplicateSnapshot {
+        let plistData: Data?
+        let groups: [DuplicateGroup]
+        let pending: [Bookmark]
+        let resolvedCount: Int
+    }
+    private struct ReviewAllSnapshot {
+        let plistData: Data?
+        let keptIDs: [String]
+        let pending: [Bookmark]
+        let keptCount: Int
+        let deletedCount: Int
+    }
+    private var duplicateUndoStack: [DuplicateSnapshot] = []
+    private var reviewAllUndoStack: [ReviewAllSnapshot] = []
 
     private let bookmarksURL = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Safari/Bookmarks.plist")
@@ -46,6 +64,10 @@ class BookmarkStore: ObservableObject {
     }
 
     func load() {
+        duplicateUndoStack = []
+        reviewAllUndoStack = []
+        canUndoDuplicates = false
+        canUndoReviewAll = false
         isLoading = true
         loadError = nil
         resolvedCount = 0
@@ -156,7 +178,44 @@ class BookmarkStore: ObservableObject {
         return toDelete
     }
 
+    func undoLastDuplicateAction() {
+        guard let snap = duplicateUndoStack.popLast() else { return }
+        canUndoDuplicates = !duplicateUndoStack.isEmpty
+        if let data = snap.plistData { try? data.write(to: bookmarksURL) }
+        duplicateGroups = snap.groups
+        pending = snap.pending
+        resolvedCount = snap.resolvedCount
+    }
+
+    func undoLastReviewAllAction() {
+        guard let snap = reviewAllUndoStack.popLast() else { return }
+        canUndoReviewAll = !reviewAllUndoStack.isEmpty
+        if let data = snap.plistData { try? data.write(to: bookmarksURL) }
+        UserDefaults.standard.set(snap.keptIDs, forKey: keptKey)
+        pending = snap.pending
+        keptCount = snap.keptCount
+        deletedCount = snap.deletedCount
+    }
+
+    private func pushDuplicateSnapshot(plistData: Data? = nil) {
+        duplicateUndoStack.append(DuplicateSnapshot(
+            plistData: plistData, groups: duplicateGroups,
+            pending: pending, resolvedCount: resolvedCount))
+        if duplicateUndoStack.count > 50 { duplicateUndoStack.removeFirst() }
+        canUndoDuplicates = true
+    }
+
+    private func pushReviewAllSnapshot(plistData: Data? = nil) {
+        reviewAllUndoStack.append(ReviewAllSnapshot(
+            plistData: plistData,
+            keptIDs: UserDefaults.standard.stringArray(forKey: keptKey) ?? [],
+            pending: pending, keptCount: keptCount, deletedCount: deletedCount))
+        if reviewAllUndoStack.count > 50 { reviewAllUndoStack.removeFirst() }
+        canUndoReviewAll = true
+    }
+
     func skipGroup(groupID: String) {
+        pushDuplicateSnapshot()
         guard let index = duplicateGroups.firstIndex(where: { $0.id == groupID }) else { return }
         let group = duplicateGroups.remove(at: index)
         duplicateGroups.append(group)
@@ -164,6 +223,7 @@ class BookmarkStore: ObservableObject {
 
     func keepDuplicate(groupID: String, keepID: String) {
         guard let groupIndex = duplicateGroups.firstIndex(where: { $0.id == groupID }) else { return }
+        pushDuplicateSnapshot(plistData: try? Data(contentsOf: bookmarksURL))
         let group = duplicateGroups[groupIndex]
         let toDelete = group.bookmarks.filter { $0.id != keepID }
 
@@ -188,6 +248,7 @@ class BookmarkStore: ObservableObject {
 
     func deleteAllInGroup(groupID: String) {
         guard let groupIndex = duplicateGroups.firstIndex(where: { $0.id == groupID }) else { return }
+        pushDuplicateSnapshot(plistData: try? Data(contentsOf: bookmarksURL))
         let group = duplicateGroups[groupIndex]
 
         guard let data = try? Data(contentsOf: bookmarksURL),
@@ -212,6 +273,7 @@ class BookmarkStore: ObservableObject {
     // MARK: Review All actions
 
     func keep() {
+        pushReviewAllSnapshot()
         guard !pending.isEmpty else { return }
         let id = pending.removeFirst().id
         var ids = UserDefaults.standard.stringArray(forKey: keptKey) ?? []
@@ -221,6 +283,7 @@ class BookmarkStore: ObservableObject {
     }
 
     func delete() {
+        pushReviewAllSnapshot(plistData: try? Data(contentsOf: bookmarksURL))
         guard !pending.isEmpty else { return }
         let bookmark = pending.removeFirst()
 
@@ -486,7 +549,7 @@ struct DuplicateGroupView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Progress header — mirrors Review All
+            // Progress
             VStack(spacing: 6) {
                 let total = store.resolvedCount + store.duplicateGroups.count
                 ProgressView(value: Double(store.resolvedCount), total: Double(max(total, 1)))
@@ -516,13 +579,19 @@ struct DuplicateGroupView: View {
                         .lineLimit(1)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                Button("Skip") { store.skipGroup(groupID: group.id) }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                Button("Delete All Copies") { store.deleteAllInGroup(groupID: group.id) }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.red)
-                    .controlSize(.small)
+                Button(action: { store.skipGroup(groupID: group.id) }) {
+                    keyHintLabel("Skip", hints: "↵  →")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .keyboardShortcut(.return, modifiers: [])
+                Button(action: { store.deleteAllInGroup(groupID: group.id) }) {
+                    keyHintLabel("Delete All Copies", hints: "⌫")
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.red)
+                .controlSize(.small)
+                .keyboardShortcut(.delete, modifiers: [])
             }
             .padding(.horizontal, 20)
             .padding(.top, 12)
@@ -539,7 +608,7 @@ struct DuplicateGroupView: View {
                 .padding(.bottom, 4)
 
             VStack(spacing: 0) {
-                ForEach(group.bookmarks) { bookmark in
+                ForEach(Array(group.bookmarks.enumerated()), id: \.element.id) { index, bookmark in
                     HStack(spacing: 12) {
                         Image(systemName: "folder")
                             .foregroundStyle(.secondary)
@@ -547,12 +616,7 @@ struct DuplicateGroupView: View {
                         Text(bookmark.path.isEmpty ? "Bookmarks Root" : bookmark.path.joined(separator: " / "))
                             .font(.subheadline)
                         Spacer()
-                        Button("Keep") {
-                            store.keepDuplicate(groupID: group.id, keepID: bookmark.id)
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.green)
-                        .controlSize(.small)
+                        keepButton(for: bookmark, index: index)
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
@@ -561,9 +625,27 @@ struct DuplicateGroupView: View {
                 }
             }
 
+            // Hidden secondary shortcuts
+            Group {
+                Button("") { store.skipGroup(groupID: group.id) }
+                    .keyboardShortcut(.rightArrow, modifiers: [])
+                Button("") { store.undoLastDuplicateAction() }
+                    .keyboardShortcut(.leftArrow, modifiers: [])
+                Button("") { store.undoLastDuplicateAction() }
+                    .keyboardShortcut("z", modifiers: .command)
+            }
+            .frame(width: 0, height: 0)
+            .opacity(0)
+
+            // Hint footer
+            Text("⌘Z · ← Back    1–\(min(group.bookmarks.count, 9)) Keep    ⌫ Delete All    ↵ · → Skip")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+                .padding(.vertical, 6)
+
             Divider()
 
-            // Preview toolbar — shows live URL after redirects
+            // Preview toolbar
             HStack {
                 Button(action: { refreshToken = UUID() }) {
                     Image(systemName: "arrow.clockwise")
@@ -603,6 +685,32 @@ struct DuplicateGroupView: View {
                 WebView(url: url, state: webState)
                     .id("\(group.url)-\(refreshToken)")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func keepButton(for bookmark: Bookmark, index: Int) -> some View {
+        let btn = Button(action: { store.keepDuplicate(groupID: group.id, keepID: bookmark.id) }) {
+            keyHintLabel("Keep", hints: index < 9 ? "\(index + 1)" : "")
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(.green)
+        .controlSize(.small)
+        if index < 9 {
+            btn.keyboardShortcut(KeyEquivalent(Character("\(index + 1)")), modifiers: [])
+        } else {
+            btn
+        }
+    }
+
+    private func keyHintLabel(_ title: String, hints: String) -> some View {
+        HStack(spacing: 4) {
+            Text(title)
+            if !hints.isEmpty {
+                Text(hints)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary.opacity(0.8))
             }
         }
     }
@@ -695,28 +803,44 @@ struct ReviewAllView: View {
 
                 Divider()
 
+                // Hidden secondary shortcuts
+                Group {
+                    Button("") { store.keep() }
+                        .keyboardShortcut(.rightArrow, modifiers: [])
+                    Button("") { store.undoLastReviewAllAction() }
+                        .keyboardShortcut(.leftArrow, modifiers: [])
+                    Button("") { store.undoLastReviewAllAction() }
+                        .keyboardShortcut("z", modifiers: .command)
+                }
+                .frame(width: 0, height: 0)
+                .opacity(0)
+
                 HStack(spacing: 16) {
                     Button(action: { store.delete() }) {
-                        Label("Delete", systemImage: "trash")
-                            .frame(maxWidth: .infinity)
+                        HStack(spacing: 4) {
+                            Label("Delete", systemImage: "trash").frame(maxWidth: .infinity)
+                            Text("⌫").font(.caption2).foregroundStyle(.secondary.opacity(0.8))
+                        }
                     }
                     .controlSize(.large)
                     .buttonStyle(.borderedProminent)
                     .tint(.red)
-                    .keyboardShortcut(.leftArrow, modifiers: [])
+                    .keyboardShortcut(.delete, modifiers: [])
 
                     Button(action: { store.keep() }) {
-                        Label("Keep", systemImage: "checkmark")
-                            .frame(maxWidth: .infinity)
+                        HStack(spacing: 4) {
+                            Label("Keep", systemImage: "checkmark").frame(maxWidth: .infinity)
+                            Text("↵").font(.caption2).foregroundStyle(.secondary.opacity(0.8))
+                        }
                     }
                     .controlSize(.large)
                     .buttonStyle(.borderedProminent)
                     .tint(.green)
-                    .keyboardShortcut(.rightArrow, modifiers: [])
+                    .keyboardShortcut(.return, modifiers: [])
                 }
                 .padding(20)
 
-                Text("← Delete    Keep →")
+                Text("⌘Z · ← Back    ⌫ Delete    ↵ · → Keep")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .padding(.bottom, 8)
