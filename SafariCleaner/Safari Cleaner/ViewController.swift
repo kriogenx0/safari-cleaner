@@ -41,6 +41,10 @@ class BookmarkStore: ObservableObject {
         Set(UserDefaults.standard.stringArray(forKey: keptKey) ?? [])
     }
 
+    var isSafariRunning: Bool {
+        NSWorkspace.shared.runningApplications.contains { $0.bundleIdentifier == "com.apple.Safari" }
+    }
+
     func load() {
         isLoading = true
         loadError = nil
@@ -368,6 +372,20 @@ struct MainView: View {
                     .padding(.vertical, 10)
 
                     Divider()
+
+                    if store.isSafariRunning {
+                        HStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.orange)
+                            Text("Safari is open. Close it before making changes, or they may be overwritten.")
+                                .font(.caption)
+                            Spacer()
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 8)
+                        .background(.orange.opacity(0.08))
+                        Divider()
+                    }
 
                     switch selectedTab {
                     case .duplicates:
