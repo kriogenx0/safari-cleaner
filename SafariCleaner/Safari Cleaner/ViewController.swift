@@ -546,6 +546,7 @@ struct DuplicateGroupView: View {
     let group: DuplicateGroup
     @StateObject private var webState = WebViewState()
     @State private var refreshToken = UUID()
+    @State private var eventMonitor: Any?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -584,14 +585,12 @@ struct DuplicateGroupView: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
-                .keyboardShortcut(.return, modifiers: [])
                 Button(action: { store.deleteAllInGroup(groupID: group.id) }) {
                     keyHintLabel("Delete All Copies", hints: "⌫")
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.red)
                 .controlSize(.small)
-                .keyboardShortcut(.delete, modifiers: [])
             }
             .padding(.horizontal, 20)
             .padding(.top, 12)
@@ -624,18 +623,6 @@ struct DuplicateGroupView: View {
                         .padding(.leading, 48)
                 }
             }
-
-            // Hidden secondary shortcuts
-            Group {
-                Button("") { store.skipGroup(groupID: group.id) }
-                    .keyboardShortcut(.rightArrow, modifiers: [])
-                Button("") { store.undoLastDuplicateAction() }
-                    .keyboardShortcut(.leftArrow, modifiers: [])
-                Button("") { store.undoLastDuplicateAction() }
-                    .keyboardShortcut("z", modifiers: .command)
-            }
-            .frame(width: 0, height: 0)
-            .opacity(0)
 
             // Hint footer
             Text("⌘Z · ← Back    1–\(min(group.bookmarks.count, 9)) Keep    ⌫ Delete All    ↵ · → Skip")
@@ -687,20 +674,44 @@ struct DuplicateGroupView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+        .onAppear {
+            eventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [self] event in
+                handleKey(event)
+            }
+        }
+        .onDisappear {
+            if let m = eventMonitor { NSEvent.removeMonitor(m); eventMonitor = nil }
+        }
     }
 
     @ViewBuilder
     private func keepButton(for bookmark: Bookmark, index: Int) -> some View {
-        let btn = Button(action: { store.keepDuplicate(groupID: group.id, keepID: bookmark.id) }) {
+        Button(action: { store.keepDuplicate(groupID: group.id, keepID: bookmark.id) }) {
             keyHintLabel("Keep", hints: index < 9 ? "\(index + 1)" : "")
         }
         .buttonStyle(.borderedProminent)
         .tint(.green)
         .controlSize(.small)
-        if index < 9 {
-            btn.keyboardShortcut(KeyEquivalent(Character("\(index + 1)")), modifiers: [])
-        } else {
-            btn
+    }
+
+    private func handleKey(_ event: NSEvent) -> NSEvent? {
+        let mods = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        let chars = event.charactersIgnoringModifiers ?? ""
+        if mods == .command && chars == "z" {
+            store.undoLastDuplicateAction(); return nil
+        }
+        guard mods.isEmpty else { return event }
+        switch event.keyCode {
+        case 36: store.skipGroup(groupID: group.id); return nil          // Return
+        case 51: store.deleteAllInGroup(groupID: group.id); return nil   // Delete
+        case 123: store.undoLastDuplicateAction(); return nil            // ←
+        case 124: store.skipGroup(groupID: group.id); return nil         // →
+        default:
+            if let n = Int(chars), n >= 1, n <= 9, n - 1 < group.bookmarks.count {
+                store.keepDuplicate(groupID: group.id, keepID: group.bookmarks[n - 1].id)
+                return nil
+            }
+            return event
         }
     }
 
@@ -722,6 +733,7 @@ struct ReviewAllView: View {
     @ObservedObject var store: BookmarkStore
     @StateObject private var webState = WebViewState()
     @State private var refreshToken = UUID()
+    @State private var eventMonitor: Any?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -803,18 +815,6 @@ struct ReviewAllView: View {
 
                 Divider()
 
-                // Hidden secondary shortcuts
-                Group {
-                    Button("") { store.keep() }
-                        .keyboardShortcut(.rightArrow, modifiers: [])
-                    Button("") { store.undoLastReviewAllAction() }
-                        .keyboardShortcut(.leftArrow, modifiers: [])
-                    Button("") { store.undoLastReviewAllAction() }
-                        .keyboardShortcut("z", modifiers: .command)
-                }
-                .frame(width: 0, height: 0)
-                .opacity(0)
-
                 HStack(spacing: 16) {
                     Button(action: { store.delete() }) {
                         HStack(spacing: 4) {
@@ -825,7 +825,6 @@ struct ReviewAllView: View {
                     .controlSize(.large)
                     .buttonStyle(.borderedProminent)
                     .tint(.red)
-                    .keyboardShortcut(.delete, modifiers: [])
 
                     Button(action: { store.keep() }) {
                         HStack(spacing: 4) {
@@ -836,7 +835,6 @@ struct ReviewAllView: View {
                     .controlSize(.large)
                     .buttonStyle(.borderedProminent)
                     .tint(.green)
-                    .keyboardShortcut(.return, modifiers: [])
                 }
                 .padding(20)
 
@@ -845,6 +843,26 @@ struct ReviewAllView: View {
                     .foregroundStyle(.tertiary)
                     .padding(.bottom, 8)
             }
+        }
+        .onAppear {
+            eventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [self] event in
+                let mods = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+                let chars = event.charactersIgnoringModifiers ?? ""
+                if mods == .command && chars == "z" {
+                    store.undoLastReviewAllAction(); return nil
+                }
+                guard mods.isEmpty else { return event }
+                switch event.keyCode {
+                case 36: store.keep(); return nil     // Return
+                case 51: store.delete(); return nil   // Delete
+                case 123: store.undoLastReviewAllAction(); return nil  // ←
+                case 124: store.keep(); return nil    // →
+                default: return event
+                }
+            }
+        }
+        .onDisappear {
+            if let m = eventMonitor { NSEvent.removeMonitor(m); eventMonitor = nil }
         }
     }
 }
