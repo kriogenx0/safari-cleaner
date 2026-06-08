@@ -26,13 +26,17 @@ class BookmarkStore: ObservableObject {
     @Published var pending: [Bookmark] = []
     @Published var isLoading = false
     @Published var loadError: String?
+    @Published var writeError: String?
     @Published var resolvedCount = 0
     @Published var keptCount = 0
     @Published var deletedCount = 0
+    @Published var readingListCount = 0
     @Published var showSamePathPrompt = false
     @Published var samePathDuplicateCount = 0
     @Published var canUndoDuplicates = false
     @Published var canUndoReviewAll = false
+
+    private let readingListFolderTitle = "com.apple.ReadingList"
 
     private struct DuplicateSnapshot {
         let plistData: Data?
@@ -156,9 +160,7 @@ class BookmarkStore: ObservableObject {
 
         for id in toDeleteIDs { remove(id: id, from: &root) }
 
-        if let newData = try? PropertyListSerialization.data(fromPropertyList: root, format: .binary, options: 0) {
-            try? newData.write(to: bookmarksURL)
-        }
+        writePlist(root)
 
         let previousResolved = resolvedCount + toDeleteIDs.count
         showSamePathPrompt = false
@@ -236,9 +238,7 @@ class BookmarkStore: ObservableObject {
 
         for bookmark in toDelete { remove(id: bookmark.id, from: &root) }
 
-        if let newData = try? PropertyListSerialization.data(fromPropertyList: root, format: .binary, options: 0) {
-            try? newData.write(to: bookmarksURL)
-        }
+        writePlist(root)
 
         let deletedIDs = Set(toDelete.map { $0.id })
         pending.removeAll { deletedIDs.contains($0.id) }
@@ -260,9 +260,7 @@ class BookmarkStore: ObservableObject {
 
         for bookmark in group.bookmarks { remove(id: bookmark.id, from: &root) }
 
-        if let newData = try? PropertyListSerialization.data(fromPropertyList: root, format: .binary, options: 0) {
-            try? newData.write(to: bookmarksURL)
-        }
+        writePlist(root)
 
         let deletedIDs = Set(group.bookmarks.map { $0.id })
         pending.removeAll { deletedIDs.contains($0.id) }
@@ -295,15 +293,26 @@ class BookmarkStore: ObservableObject {
 
         remove(id: bookmark.id, from: &root)
 
-        if let newData = try? PropertyListSerialization.data(fromPropertyList: root, format: .binary, options: 0) {
-            try? newData.write(to: bookmarksURL)
-        }
+        writePlist(root)
         deletedCount += 1
     }
 
     func clearKeptAndReload() {
         UserDefaults.standard.removeObject(forKey: keptKey)
         load()
+    }
+
+    @discardableResult
+    private func writePlist(_ root: [String: Any]) -> Bool {
+        do {
+            let data = try PropertyListSerialization.data(fromPropertyList: root, format: .binary, options: 0)
+            try data.write(to: bookmarksURL, options: .atomic)
+            writeError = nil
+            return true
+        } catch {
+            writeError = "Failed to save bookmarks: \(error.localizedDescription)"
+            return false
+        }
     }
 
     private func remove(id: String, from node: inout [String: Any]) {
@@ -315,6 +324,52 @@ class BookmarkStore: ObservableObject {
             updated.append(child)
         }
         node["Children"] = updated
+    }
+
+    // Moves bookmark into Reading List folder (creates folder if missing), removes all other copies.
+    func moveToReadingList(url: String, title: String, keepID: String?, idsToRemove: [String]) {
+        guard let data = try? Data(contentsOf: bookmarksURL),
+              var root = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else { return }
+
+        for id in idsToRemove { remove(id: id, from: &root) }
+
+        // Find or create Reading List folder
+        if var children = root["Children"] as? [[String: Any]] {
+            var rlIndex = children.firstIndex(where: {
+                ($0["Title"] as? String) == readingListFolderTitle
+            })
+            if rlIndex == nil {
+                let newFolder: [String: Any] = [
+                    "WebBookmarkType": "WebBookmarkTypeList",
+                    "Title": readingListFolderTitle,
+                    "WebBookmarkUUID": UUID().uuidString,
+                    "Children": [[String: Any]]()
+                ]
+                children.append(newFolder)
+                root["Children"] = children
+                rlIndex = children.count - 1
+            }
+            var folder = children[rlIndex!]
+            if var folderChildren = folder["Children"] as? [[String: Any]] {
+                let alreadyThere = folderChildren.contains {
+                    ($0["URLString"] as? String) == url
+                }
+                if !alreadyThere {
+                    let entry: [String: Any] = [
+                        "WebBookmarkType": "WebBookmarkTypeLeaf",
+                        "URLString": url,
+                        "URIDictionary": ["title": title],
+                        "WebBookmarkUUID": UUID().uuidString
+                    ]
+                    folderChildren.append(entry)
+                    folder["Children"] = folderChildren
+                    children[rlIndex!] = folder
+                    root["Children"] = children
+                }
+            }
+        }
+
+        if writePlist(root) { readingListCount += 1 }
     }
 }
 
@@ -625,7 +680,7 @@ struct DuplicateGroupView: View {
             }
 
             // Hint footer
-            Text("⌘Z Back    1–\(min(group.bookmarks.count, 9)) Keep    D Delete All    S Skip")
+            Text("⌘Z Back    1–\(min(group.bookmarks.count, 9)) Keep    D Delete All    R Reading List    S Skip")
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
                 .padding(.vertical, 6)
@@ -688,6 +743,14 @@ struct DuplicateGroupView: View {
                 switch chars {
                 case "s": s.skipGroup(groupID: gid); return nil
                 case "d": s.deleteAllInGroup(groupID: gid); return nil
+                case "r":
+                    if let g = s.duplicateGroups.first {
+                        s.moveToReadingList(url: g.url, title: g.title,
+                            keepID: nil, idsToRemove: g.bookmarks.map { $0.id })
+                        s.duplicateGroups.removeFirst()
+                        s.resolvedCount += 1
+                    }
+                    return nil
                 default:
                     if let n = Int(chars), n >= 1, n <= 9,
                        let g = s.duplicateGroups.first, n - 1 < g.bookmarks.count {
@@ -836,7 +899,7 @@ struct ReviewAllView: View {
                 }
                 .padding(20)
 
-                Text("⌘Z Back    D Delete    K Keep")
+                Text("⌘Z Back    D Delete    K Keep    R Reading List")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .padding(.bottom, 8)
@@ -855,6 +918,13 @@ struct ReviewAllView: View {
                 switch chars {
                 case "d": s.delete(); return nil
                 case "k": s.keep(); return nil
+                case "r":
+                    if let b = s.pending.first {
+                        s.pending.removeFirst()
+                        s.moveToReadingList(url: b.url, title: b.title,
+                            keepID: nil, idsToRemove: [b.id])
+                    }
+                    return nil
                 default: return event
                 }
             }
