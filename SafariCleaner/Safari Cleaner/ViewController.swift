@@ -581,12 +581,12 @@ struct DuplicateGroupView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 Button(action: { store.skipGroup(groupID: group.id) }) {
-                    keyHintLabel("Skip", hints: "↵  →")
+                    keyHintLabel("Skip", hints: "s")
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
                 Button(action: { store.deleteAllInGroup(groupID: group.id) }) {
-                    keyHintLabel("Delete All Copies", hints: "⌫")
+                    keyHintLabel("Delete All Copies", hints: "d")
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.red)
@@ -625,7 +625,7 @@ struct DuplicateGroupView: View {
             }
 
             // Hint footer
-            Text("⌘Z · ← Back    1–\(min(group.bookmarks.count, 9)) Keep    ⌫ Delete All    ↵ · → Skip")
+            Text("⌘Z Back    1–\(min(group.bookmarks.count, 9)) Keep    D Delete All    S Skip")
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
                 .padding(.vertical, 6)
@@ -675,8 +675,27 @@ struct DuplicateGroupView: View {
             }
         }
         .onAppear {
-            eventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [self] event in
-                handleKey(event)
+            let s = store
+            eventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+                guard event.modifierFlags.intersection(.deviceIndependentFlagsMask).isEmpty ||
+                      (event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "z")
+                else { return event }
+                let chars = event.charactersIgnoringModifiers ?? ""
+                if event.modifierFlags.contains(.command) && chars == "z" {
+                    s.undoLastDuplicateAction(); return nil
+                }
+                guard let gid = s.duplicateGroups.first?.id else { return event }
+                switch chars {
+                case "s": s.skipGroup(groupID: gid); return nil
+                case "d": s.deleteAllInGroup(groupID: gid); return nil
+                default:
+                    if let n = Int(chars), n >= 1, n <= 9,
+                       let g = s.duplicateGroups.first, n - 1 < g.bookmarks.count {
+                        s.keepDuplicate(groupID: gid, keepID: g.bookmarks[n - 1].id)
+                        return nil
+                    }
+                    return event
+                }
             }
         }
         .onDisappear {
@@ -692,27 +711,6 @@ struct DuplicateGroupView: View {
         .buttonStyle(.borderedProminent)
         .tint(.green)
         .controlSize(.small)
-    }
-
-    private func handleKey(_ event: NSEvent) -> NSEvent? {
-        let mods = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
-        let chars = event.charactersIgnoringModifiers ?? ""
-        if mods == .command && chars == "z" {
-            store.undoLastDuplicateAction(); return nil
-        }
-        guard mods.isEmpty else { return event }
-        switch event.keyCode {
-        case 36: store.skipGroup(groupID: group.id); return nil          // Return
-        case 51: store.deleteAllInGroup(groupID: group.id); return nil   // Delete
-        case 123: store.undoLastDuplicateAction(); return nil            // ←
-        case 124: store.skipGroup(groupID: group.id); return nil         // →
-        default:
-            if let n = Int(chars), n >= 1, n <= 9, n - 1 < group.bookmarks.count {
-                store.keepDuplicate(groupID: group.id, keepID: group.bookmarks[n - 1].id)
-                return nil
-            }
-            return event
-        }
     }
 
     private func keyHintLabel(_ title: String, hints: String) -> some View {
@@ -819,7 +817,7 @@ struct ReviewAllView: View {
                     Button(action: { store.delete() }) {
                         HStack(spacing: 4) {
                             Label("Delete", systemImage: "trash").frame(maxWidth: .infinity)
-                            Text("⌫").font(.caption2).foregroundStyle(.secondary.opacity(0.8))
+                            Text("d").font(.caption2).foregroundStyle(.secondary.opacity(0.8))
                         }
                     }
                     .controlSize(.large)
@@ -829,7 +827,7 @@ struct ReviewAllView: View {
                     Button(action: { store.keep() }) {
                         HStack(spacing: 4) {
                             Label("Keep", systemImage: "checkmark").frame(maxWidth: .infinity)
-                            Text("↵").font(.caption2).foregroundStyle(.secondary.opacity(0.8))
+                            Text("k").font(.caption2).foregroundStyle(.secondary.opacity(0.8))
                         }
                     }
                     .controlSize(.large)
@@ -838,25 +836,25 @@ struct ReviewAllView: View {
                 }
                 .padding(20)
 
-                Text("⌘Z · ← Back    ⌫ Delete    ↵ · → Keep")
+                Text("⌘Z Back    D Delete    K Keep")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .padding(.bottom, 8)
             }
         }
         .onAppear {
-            eventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [self] event in
-                let mods = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+            let s = store
+            eventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+                guard event.modifierFlags.intersection(.deviceIndependentFlagsMask).isEmpty ||
+                      (event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "z")
+                else { return event }
                 let chars = event.charactersIgnoringModifiers ?? ""
-                if mods == .command && chars == "z" {
-                    store.undoLastReviewAllAction(); return nil
+                if event.modifierFlags.contains(.command) && chars == "z" {
+                    s.undoLastReviewAllAction(); return nil
                 }
-                guard mods.isEmpty else { return event }
-                switch event.keyCode {
-                case 36: store.keep(); return nil     // Return
-                case 51: store.delete(); return nil   // Delete
-                case 123: store.undoLastReviewAllAction(); return nil  // ←
-                case 124: store.keep(); return nil    // →
+                switch chars {
+                case "d": s.delete(); return nil
+                case "k": s.keep(); return nil
                 default: return event
                 }
             }
