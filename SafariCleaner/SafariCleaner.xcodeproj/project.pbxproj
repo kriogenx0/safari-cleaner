@@ -17,91 +17,11 @@
 			fileRef = A0DED76B232442DB8B1D1AB6;
 		};
 
-		83A899DBEB144B98BC01F3A9 = {
-			isa = PBXBuildFile;
-			fileRef = 8AD453B03D1641D598F07358;
-		};
-
 		4801CA38773A44ED833F6451 = {
 			isa = PBXBuildFile;
 			fileRef = 4341169A17BA4F1F8648E6F5;
 		};
-
-		AE8F0D39C4C149009E72C202 = {
-			isa = PBXBuildFile;
-			fileRef = 1E6DFAAD6329443E97F40921;
-		};
-
-		AD437C0E78B347ECB9E3A2CA = {
-			isa = PBXBuildFile;
-			fileRef = 9A7785F246F441D8B41A4386;
-		};
-
-		BF25F1AF74714472A47D77DF = {
-			isa = PBXBuildFile;
-			fileRef = 7D1666E33E20415CA051FC50;
-		};
-
-		166646B777C343DC9B6BBAF3 = {
-			isa = PBXBuildFile;
-			fileRef = AA76F5E39E1F4A52872A132B;
-		};
-
-		BCC36F3870014E57AD751860 = {
-			isa = PBXBuildFile;
-			fileRef = 4B5597DD66534206967AB729;
-		};
-
-		E85FD34C34684B66AD09DEB9 = {
-			isa = PBXBuildFile;
-			fileRef = 2289739C02AF4EB1B201334A;
-		};
-
-		33AC2BA86F104B5FB47279D7 = {
-			isa = PBXBuildFile;
-			fileRef = 2A5490F78650405CA8698CB7;
-		};
-
-		2C29A7451E1F4891AA668136 = {
-			isa = PBXBuildFile;
-			fileRef = 1A7719D7429849DD863E5071;
-		};
-
-		4A58100B885148ACAC645DCE = {
-			isa = PBXBuildFile;
-			fileRef = FA9D5E0AA016435CADC8D3CD;
-		};
-
-		269505A3D21E43C7AD235306 = {
-			isa = PBXBuildFile;
-			fileRef = 6180886AB8B44A1B8A11B92A;
-			settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); };
-		};
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		12D597937D4F4391B66D9EC4 = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6317804A3DA045FDB21CC597;
-			proxyType = 1;
-			remoteGlobalIDString = BA81D0E0A2C544D5A4F252B2;
-			remoteInfo = "Safari Cleaner Extension";
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		F9B9E110DDB6425C80211837 = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				269505A3D21E43C7AD235306,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0072A2A8C456446C89EF25C7 = {
@@ -109,14 +29,6 @@
 			lastKnownFileType = wrapper.application;
 			name = "Safari Cleaner.app";
 			path = "Safari Cleaner.app";
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-
-		6180886AB8B44A1B8A11B92A = {
-			isa = PBXFileReference;
-			lastKnownFileType = wrapper.app-extension;
-			name = "Safari Cleaner Extension.appex";
-			path = "Safari Cleaner Extension.appex";
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 
@@ -160,112 +72,10 @@
 			sourceTree = "<group>";
 		};
 
-		8AD453B03D1641D598F07358 = {
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.swift;
-			name = "SafariWebExtensionHandler.swift";
-			path = "SafariWebExtensionHandler.swift";
-			sourceTree = "<group>";
-		};
-
-		5F1A9B6F88F84E7BBB8988C5 = {
-			isa = PBXFileReference;
-			lastKnownFileType = text.plist.xml;
-			name = "Info.plist";
-			path = "Info.plist";
-			sourceTree = "<group>";
-		};
-
-		6E00F8164F7D4A85A204C042 = {
-			isa = PBXFileReference;
-			lastKnownFileType = text.plist.entitlements;
-			name = "SafariCleanerExtension.entitlements";
-			path = "SafariCleanerExtension.entitlements";
-			sourceTree = "<group>";
-		};
-
-		1E6DFAAD6329443E97F40921 = {
-			isa = PBXFileReference;
-			lastKnownFileType = text.json;
-			name = "manifest.json";
-			path = "Resources/manifest.json";
-			sourceTree = "<group>";
-		};
-
-		9A7785F246F441D8B41A4386 = {
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.javascript;
-			name = "background.js";
-			path = "Resources/background.js";
-			sourceTree = "<group>";
-		};
-
-		7D1666E33E20415CA051FC50 = {
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.javascript;
-			name = "content.js";
-			path = "Resources/content.js";
-			sourceTree = "<group>";
-		};
-
-		AA76F5E39E1F4A52872A132B = {
-			isa = PBXFileReference;
-			lastKnownFileType = text.html;
-			name = "popup.html";
-			path = "Resources/popup.html";
-			sourceTree = "<group>";
-		};
-
-		4B5597DD66534206967AB729 = {
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.javascript;
-			name = "popup.js";
-			path = "Resources/popup.js";
-			sourceTree = "<group>";
-		};
-
-		2289739C02AF4EB1B201334A = {
-			isa = PBXFileReference;
-			lastKnownFileType = image.png;
-			name = "icon-48.png";
-			path = "Resources/images/icon-48.png";
-			sourceTree = "<group>";
-		};
-
-		2A5490F78650405CA8698CB7 = {
-			isa = PBXFileReference;
-			lastKnownFileType = image.png;
-			name = "icon-96.png";
-			path = "Resources/images/icon-96.png";
-			sourceTree = "<group>";
-		};
-
-		1A7719D7429849DD863E5071 = {
-			isa = PBXFileReference;
-			lastKnownFileType = image.png;
-			name = "icon-128.png";
-			path = "Resources/images/icon-128.png";
-			sourceTree = "<group>";
-		};
-
-		FA9D5E0AA016435CADC8D3CD = {
-			isa = PBXFileReference;
-			lastKnownFileType = image.png;
-			name = "icon-256.png";
-			path = "Resources/images/icon-256.png";
-			sourceTree = "<group>";
-		};
-
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		8C63DFB9091148F1A66AC16B = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = ();
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		39A92E366A0241EA892B6F58 = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = ();
@@ -278,7 +88,6 @@
 			isa = PBXGroup;
 			children = (
 				D198B395E6D447C7B63FD906,
-				CD178CD340D041B8963DF6B9,
 				2491A66B6A1F4C24A42F768F,
 			);
 			sourceTree = "<group>";
@@ -287,7 +96,6 @@
 			isa = PBXGroup;
 			children = (
 				0072A2A8C456446C89EF25C7,
-				6180886AB8B44A1B8A11B92A,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -305,32 +113,6 @@
 			path = "Safari Cleaner";
 			sourceTree = "<group>";
 		};
-		CD178CD340D041B8963DF6B9 = {
-			isa = PBXGroup;
-			children = (
-				8AD453B03D1641D598F07358,
-				90914C741265490B9838A313,
-				5F1A9B6F88F84E7BBB8988C5,
-				6E00F8164F7D4A85A204C042,
-			);
-			name = "Safari Cleaner Extension";
-			path = "Safari Cleaner Extension";
-			sourceTree = "<group>";
-		};
-		90914C741265490B9838A313 = {
-			isa = PBXGroup;
-			children = (
-				1E6DFAAD6329443E97F40921,
-				9A7785F246F441D8B41A4386,
-				7D1666E33E20415CA051FC50,
-				2289739C02AF4EB1B201334A,
-				2A5490F78650405CA8698CB7,
-				1A7719D7429849DD863E5071,
-				FA9D5E0AA016435CADC8D3CD,
-			);
-			name = Resources;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -341,31 +123,13 @@
 				B964050A4D924E2089107F28,
 				09E3393640E74A44B86E4497,
 				8C63DFB9091148F1A66AC16B,
-				F9B9E110DDB6425C80211837,
 			);
 			buildRules = ();
-			dependencies = (
-				35DD354DCF594DEDA95AB1DE,
-			);
+			dependencies = ();
 			name = "Safari Cleaner";
 			productName = "Safari Cleaner";
 			productReference = 0072A2A8C456446C89EF25C7;
 			productType = "com.apple.product-type.application";
-		};
-		BA81D0E0A2C544D5A4F252B2 = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 558F754AB8E249ADA2B264D3;
-			buildPhases = (
-				6A2591F9FFE34EFDB99B7142,
-				EF9E3285A57346FF82BB0AF9,
-				39A92E366A0241EA892B6F58,
-			);
-			buildRules = ();
-			dependencies = ();
-			name = "Safari Cleaner Extension";
-			productName = "Safari Cleaner Extension";
-			productReference = 6180886AB8B44A1B8A11B92A;
-			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -378,9 +142,6 @@
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					EF4AB8CACB574FD7AF732346 = {
-						CreatedOnToolsVersion = 15.0;
-					};
-					BA81D0E0A2C544D5A4F252B2 = {
 						CreatedOnToolsVersion = 15.0;
 					};
 				};
@@ -399,7 +160,6 @@
 			projectRoot = "";
 			targets = (
 				EF4AB8CACB574FD7AF732346,
-				BA81D0E0A2C544D5A4F252B2,
 			);
 		};
 /* End PBXProject section */
@@ -410,20 +170,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4801CA38773A44ED833F6451,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EF9E3285A57346FF82BB0AF9 = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AE8F0D39C4C149009E72C202,
-				AD437C0E78B347ECB9E3A2CA,
-				BF25F1AF74714472A47D77DF,
-				E85FD34C34684B66AD09DEB9,
-				33AC2BA86F104B5FB47279D7,
-				2C29A7451E1F4891AA668136,
-				4A58100B885148ACAC645DCE,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -439,23 +185,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		6A2591F9FFE34EFDB99B7142 = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				83A899DBEB144B98BC01F3A9,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		35DD354DCF594DEDA95AB1DE = {
-			isa = PBXTargetDependency;
-			target = BA81D0E0A2C544D5A4F252B2;
-			targetProxy = 12D597937D4F4391B66D9EC4;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		C118800F10194F7B973D0BB4 = {
@@ -528,38 +258,6 @@
 			};
 			name = Release;
 		};
-		C82FA34EFE5D4D77B23EF7BE = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "Safari Cleaner Extension/SafariCleanerExtension.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = "Safari Cleaner Extension/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.alexv.safari-cleaner.Extension";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Debug;
-		};
-		F6C7B4A737E24E278B4328B7 = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "Safari Cleaner Extension/SafariCleanerExtension.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = "Safari Cleaner Extension/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.alexv.safari-cleaner.Extension";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -577,15 +275,6 @@
 			buildConfigurations = (
 				8D0F51A1F5F94770852C3DA4,
 				1F09E163ABC6463DB06CF9CF,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		558F754AB8E249ADA2B264D3 = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				C82FA34EFE5D4D77B23EF7BE,
-				F6C7B4A737E24E278B4328B7,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
