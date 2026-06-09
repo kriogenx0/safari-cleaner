@@ -28,13 +28,13 @@ run(["iconutil", "-c", "iconset", icns, "-o", f"{tmp}/safari.iconset"])
 
 # Pick largest available source
 src = None
-for size in [1024, 512, 256]:
-    candidate = f"{tmp}/safari.iconset/icon_{size}x{size}.png"
-    candidate2 = f"{tmp}/safari.iconset/icon_{size}x{size}@2x.png"
-    if os.path.exists(candidate2):
-        src = candidate2; break
-    if os.path.exists(candidate):
-        src = candidate; break
+for size in [1024, 512, 256, 128]:
+    for suffix in [f"icon_{size}x{size}@2x.png", f"icon_{size}x{size}.png"]:
+        candidate = f"{tmp}/safari.iconset/{suffix}"
+        if os.path.exists(candidate):
+            src = candidate; break
+    if src:
+        break
 if not src:
     sys.exit("Could not find a suitable source icon in Safari's icns")
 
@@ -42,20 +42,29 @@ print(f"Source: {src}")
 
 # 2. Apply red hue rotation using sips (built-in macOS tool doesn't do hue)
 #    Use Core Image via a small Swift one-liner instead.
+# 2. Apply red hue rotation via a temp Swift script
 shifted = "/tmp/safari_red.png"
-swift_code = f"""
-import AppKit, CoreImage
-let img = CIImage(contentsOf: URL(fileURLWithPath: "{src}"))!
-let hue = CIFilter.hueAdjust()
-hue.inputImage = img
-hue.angle = 3.0   // ~172 degrees, shifts blue→red
+swift_script = "/tmp/hue_shift.swift"
+with open(swift_script, "w") as f:
+    f.write(f"""
+import AppKit
+import CoreImage
+
+let url = URL(fileURLWithPath: "{src}")
+guard let img = CIImage(contentsOf: url) else {{ fatalError("Could not load image") }}
+
+let hue = CIFilter(name: "CIHueAdjust")!
+hue.setValue(img, forKey: kCIInputImageKey)
+hue.setValue(Float(3.0), forKey: "inputAngle")
+let out = hue.outputImage!
+
 let ctx = CIContext()
-let cgImg = ctx.createCGImage(hue.outputImage!, from: hue.outputImage!.extent)!
+let cgImg = ctx.createCGImage(out, from: out.extent)!
 let bmp = NSBitmapImageRep(cgImage: cgImg)
 let data = bmp.representation(using: .png, properties: [:])!
 try! data.write(to: URL(fileURLWithPath: "{shifted}"))
-"""
-run(["swift", "-e", swift_code])
+""")
+run(["swift", swift_script])
 print(f"Hue-shifted icon saved to {shifted}")
 
 # 3. Resize into all required sizes and write Contents.json
