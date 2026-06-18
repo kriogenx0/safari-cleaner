@@ -890,7 +890,7 @@ struct ReviewAllView: View {
                     Button(action: { store.keep() }) {
                         HStack(spacing: 4) {
                             Label("Keep", systemImage: "checkmark").frame(maxWidth: .infinity)
-                            Text("k").font(.caption2).foregroundStyle(.secondary.opacity(0.8))
+                            Text("s").font(.caption2).foregroundStyle(.secondary.opacity(0.8))
                         }
                     }
                     .controlSize(.large)
@@ -899,7 +899,7 @@ struct ReviewAllView: View {
                 }
                 .padding(20)
 
-                Text("⌘Z Back    D Delete    K Keep    R Reading List")
+                Text("⌘Z Back    D Delete    S Keep    R Reading List")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .padding(.bottom, 8)
@@ -917,7 +917,7 @@ struct ReviewAllView: View {
                 }
                 switch chars {
                 case "d": s.delete(); return nil
-                case "k": s.keep(); return nil
+                case "s": s.keep(); return nil
                 case "r":
                     if let b = s.pending.first {
                         s.pending.removeFirst()
